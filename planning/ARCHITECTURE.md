@@ -75,16 +75,16 @@ Source: `admin/Guidelines.pdf` (4 pages, read in full).
 
 **Original:** "How does progressively applying least-privilege network access reduce unnecessary communication while affecting firewall/ACL policy complexity and management?"
 
-**Refined RQ [PROPOSED DESIGN]:**
+**Refined RQ [TEAM DECISION — approved and recorded in `decisions-log.md`, entry "RQ wording revised"]:**
 
-> In a multi-department enterprise network, how does progressively refining access-control policy — from a broad policy, to department-level segmentation, to service-level least privilege — change **(a)** the unnecessary communication that the policy permits among the tested flows and **(b)** the size, specificity and order-dependence of the policy, and how do these observed trade-offs compare with the firewall-policy management challenges reported in the literature?
+> In a multi-department enterprise network, how does progressively refining access-control policy — from a broad policy, to department-level segmentation, to service-level least privilege — change **(a)** the unnecessary communication that the policy permits among the 26 test cases and **(b)** the size, specificity and order-dependence of the policy, and how do these observed trade-offs compare with the firewall-policy management challenges reported in the literature?
 
-Short form (`[TEAM DECISION]`, see `decisions-log.md`): *"How does refining policy from broad, to department-level, to service-level least privilege change (a) the unnecessary flows the policy allows and (b) the policy's size, specificity and dependence on rule order, and how does this compare with the literature?"*
+Short form (same `[TEAM DECISION]`): *"How does refining policy from broad, to department-level, to service-level least privilege change (a) the unnecessary flows the policy allows and (b) the policy's size, specificity and dependence on rule order, and how does this compare with the literature?"*
 
 Why this wording:
 - It names the three stages, so the experimental design follows directly from the question.
 - The experiment compares **policy stages**. Each stage bundles several refinements (granularity, ACL structure, edge narrowing, VTY transport), so results are attributed to the stage as a whole, not to granularity alone (`network-design/acl-design.md` §1).
-- Answers are limited to the **26 tested flows**. Untested combinations are only described as "expected by rule trace".
+- Answers are limited to the **26 test cases**. Untested combinations are only described as "expected by rule trace".
 - It splits the vague phrase "complexity and management" into things we can observe in Packet Tracer: size, specificity and order-dependence.
 - The comparison with literature is part of the question, so Part C has a clear job.
 - It does not assume the answer.
@@ -316,7 +316,7 @@ Results are logged in `decisions-log.md` as `[EXPERIMENTAL RESULT]` (pilot), and
 
 The metric definitions are in `acl-design.md` §6.1. These include:
 
-- **exposed service**: measured for Sales only, against a 9-item service inventory
+- **exposed service**: measured for Sales only, against a 9-item inventory of internal services, counting only the router addresses actually tested; Internet browsing is not part of it
 - **order-dependent entry pair**: opposite actions with overlapping match sets, excluding the terminal deny
 
 Measured values go into `packet-tracer/tests/test-matrix.md` §7. "Configuration complexity" is never a single subjective score. Published complexity measures (for example Wool's metric `[UNVERIFIED]`) are applied only after the source has been verified.
@@ -337,7 +337,7 @@ The full matrix is in `packet-tracer/tests/test-matrix.md`.
 - **Every denial needs two pieces of evidence:**
   - the client-side failure, and
   - the deny entry's counter rising (or Simulation Mode showing the drop)
-- **Tested directions** are listed in `acl-design.md` §1.3. Server-initiated traffic is neither filtered nor tested. Conclusions are limited to the tested flows.
+- **Tested directions** are listed in `acl-design.md` §1.3. Server-initiated traffic is neither filtered nor tested. Conclusions are limited to the 26 test cases.
 
 ---
 
@@ -430,7 +430,7 @@ There is one project. Everyone contributes to every Part. Roles describe **respo
 ## 10. First-Action Checklist
 
 **Decisions to make (this week)**
-- [ ] Approve or modify the refined RQ (§2), the 5-theme merge (§4.2), the topology (§5), and the requirements R1–R8 / X1–X7 (§5.4)
+- [x] Approve or modify the refined RQ (§2), the 5-theme merge (§4.2), the topology (§5), and the requirements R1–R8 / X1–X7 (§5.4). Done: recorded as team decisions in `decisions-log.md`.
 - [ ] Assign P1–P5 and the viva leads; ask the faculty whether viva sections are formally assigned (N1)
 - [ ] Record the submission deadline and seminar date. They are not in Guidelines.pdf, so the timeline is still TBD.
 - [ ] Record the team name, members and registration numbers for the title page

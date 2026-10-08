@@ -8,7 +8,7 @@
 |---|---|---|
 | D1 | **VLAN 99 (switch management) is deferred.** It is no longer part of the core build. | One /24 cannot sit on two router subinterfaces (G0/0 and G0/1). Supporting it would need a second management subnet, adding configuration without adding to the research question. The routers stay as the management targets (R5/X4/X5). Listed as an optional extension in §8. |
 | D2 | **SW-EXT stays unconfigured** (all ports in VLAN 1). | It only joins the two external hosts to R-EDGE. Nothing on it is tested. |
-| D3 | **Each server runs only its intended service(s).** | Packet Tracer servers enable several services by default (for example HTTP/HTTPS/FTP). If those stayed on, service exposure would depend on server defaults rather than on our network policy. This counts as host hardening and is kept identical in every stage, so only the ACLs change between stages. |
+| D3 | **Each server runs only its intended service(s).** | Packet Tracer servers are expected to enable several services by default (for example HTTP/HTTPS/FTP) `[UNVERIFIED: record the actual defaults when the servers are first placed in Stage 0]`. If those stayed on, service exposure would depend on server defaults rather than on our network policy. This counts as host hardening and is kept identical in every stage, so only the ACLs change between stages. |
 
 ## 2. Device inventory (19 devices)
 

@@ -79,12 +79,12 @@ Every R and X requirement has at least one test.
 | R1 | Yes: user VLAN → R-CORE → VLAN 50 | Server DNS service; PC `nslookup` | Pending pilot P1 |
 | R2 | Yes | Server HTTP/HTTPS; PC web browser | Pending P2 |
 | R3 | Yes | Server HTTPS; PC browser | Pending P2 |
-| R4 | Yes for the control connection. In Stage 3, the FTP **data** connection would be blocked under real IOS behaviour (`acl-design.md` §5.1). | Server FTP; PC `ftp` client | **Pending pilot P7.** No data-port entry is added unless P7 shows one is needed. Fallback: HTTPS. |
+| R4 | Yes for the control connection: TCP 21 is expected to be permitted for Finance → FIN-SRV (the required test T04) in every stage, while the forbidden FTP tests are expected to be blocked from Stage 3 (T08, T09) and at the edge (T16). In Stage 3, the FTP **data** connection would be blocked under real IOS behaviour (`acl-design.md` §5.1). | Server FTP; PC `ftp` client | **Pending pilot P7.** No data-port entry is added unless P7 shows one is needed. Fallback: HTTPS. |
 | R5 | Yes. R-CORE is reached via 192.168.30.1; R-EDGE via 10.0.0.2 (routed through R-CORE G0/2) | 2911 SSH server; PC `ssh -l` | Pending P8 |
 | R6 | Yes | ICMP (always available) | Pending P3 (only for counter evidence) |
 | R7 | Yes: R-CORE default route → R-EDGE → 203.0.113.0/24; return through R-EDGE's 192.168.0.0/16 route | EXT-WEB HTTP/HTTPS | Pending P6 |
 | R8 | Yes: R-EDGE → R-CORE → VLAN 50 | WEB-SRV HTTP | Pending P6 (for the deny side) |
-| X1–X7 | Each forbidden flow is routable when no ACL applies (verified in Stage 0), so denying it is a real policy effect | Same clients as above | Pending the Stage 0 positive control (all 26 tests must pass with no ACLs) |
-| U1 | Same VLAN, so it is switched only | ICMP | Confirmed by design; to be shown by T18 |
+| X1–X7 | Each forbidden flow is routable when no ACL applies (to be verified in Stage 0), so denying it is a real policy effect | Same clients as above | Pending the Stage 0 positive control (all 26 tests must pass with no ACLs) |
+| U1 | Same VLAN, so it is switched only | ICMP | Expected by design; to be shown by T18 |
 
 No requirement depends on a service that PT is known to lack. The database service was already replaced by FTP at the architecture stage.

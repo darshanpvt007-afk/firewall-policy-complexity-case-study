@@ -37,9 +37,9 @@ Record the exact client message for denials: pilot steps P2, P3, P7 and P8 tell 
 | Forbidden (13) | T07–T13, T16, T19–T21, T25, T26 |
 | Control | T18 |
 
-**Sales sweep for exposure:** T02, T08, T10, T11, T19, T20, T23, T24, T25, T26 (see `acl-design.md` §6.1).
+**Sales sweep for exposure:** T02, T08, T10, T11, T19, T20, T23, T24, T25, T26 (see `acl-design.md` §6.1). It covers internal services only, on the router addresses listed in those tests; Internet browsing is not part of it.
 
-**Scope:** conclusions are limited to these 26 flows (`acl-design.md` §1.3).
+**Scope:** conclusions are limited to these 26 test cases (`acl-design.md` §1.3).
 
 ## 2. Test definitions
 

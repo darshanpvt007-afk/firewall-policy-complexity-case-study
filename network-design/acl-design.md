@@ -58,7 +58,7 @@ Each stage is a *bundle* of refinements, **not** a change in granularity alone. 
 | **Same-VLAN host ↔ host** | **No** (Layer 2 only) | Yes, as a control: T18 |
 | Router-originated traffic, inter-server traffic, external → user other than ICMP echo | No / not applicable | No |
 
-**Scope of conclusions.** Results apply **only to the 26 tested flows**, in this topology, under Packet Tracer's protocol models. Untested source/destination/service combinations are described as "expected by rule trace" and never reported as observed.
+**Scope of conclusions.** Results apply **only to the 26 test cases**, in this topology, under Packet Tracer's protocol models. Untested source/destination/service combinations are described as "expected by rule trace" and never reported as observed.
 
 ## 2. Placement validation
 
@@ -256,7 +256,7 @@ Real FTP uses two TCP connections. The control connection carries login and comm
 
 | Connection | Packets from the client (checked by AP3) | Packets from the server (not filtered) | Stage 3 AP3 decision for the client's packets |
 |---|---|---|---|
-| Control (both modes) | client:ephemeral → server:**21** | server:21 → client:ephemeral | Permitted by FIN-40 (`eq ftp`) |
+| Control (both modes) | client:ephemeral → server:**21** | server:21 → client:ephemeral | Expected to be permitted by FIN-40 (`eq ftp`), **for Finance → FIN-SRV only** (the required test T04). Port 21 is not opened for anyone else: the forbidden FTP tests are expected to be blocked from Stage 3 (T08, T09) and at the edge in every stage (T16). |
 | Data, **active mode** (PORT) | The server opens the connection, from server:**20** to client:N. The client's SYN-ACK and every later ACK go from client:N → server:**20**. | Server's SYN and data from server:20 → client:N | **Denied by FIN-50.** Port 20 is not 21, and 192.168.50.40 is inside 192.168.0.0/16. |
 | Data, **passive mode** (PASV) | client:ephemeral → server:**P**, where P is a high port the server announces | server:P → client | **Denied by FIN-50.** P is not 21. |
 
@@ -272,7 +272,7 @@ Consequences:
 | (b) `dir`/`get` fail and the deny counter rises | Read the ports used from Simulation Mode, then the **team decides** between two options, logged in `decisions-log.md`. Option 1: add the single minimal entry the observation requires (`eq ftp-data` for active mode, or a port range for passive mode). A passive-mode range is reported as excess permission forced by stateless filtering. Option 2: change R4 to HTTPS on FIN-SRV, and document the substitution. |
 | (c) Login itself fails | This is not an ACL-design question. Troubleshoot Stage 0 first. |
 
-- **The forbidden FTP tests (T08, T09, T16)** only need the control connection to be refused, so they are unaffected by the data-channel question.
+- **The forbidden FTP tests (T08, T09, T16)** only need the control connection to be refused, so they are unaffected by the data-channel question. Planned expectations: T08 and T09 allowed (excess) in Stages 1–2 and blocked in Stage 3; T16 blocked at the edge in every stage. None of this has been verified in Packet Tracer.
 
 ## 6. Metric definitions and planned values
 
@@ -286,10 +286,10 @@ All values are **planned**, derived from the design. Measured values come only f
 | **Application points** | Number of interface/direction or VTY bindings (AP1–AP7) |
 | **Explicit entries** | Permit/deny entries shown by `show access-lists`. Remarks and the implicit deny are excluded. |
 | **Match conditions** | For each explicit entry, count the fields that are not wildcards, from: source, destination, protocol (other than `ip`), source port, destination port or ICMP type, `established`. Sum over all entries. |
-| **Exposed service** | A (destination host, service) pair from the **service inventory** below that is actually running in our build **and** that a given source can use under the stage's policy, **as shown by a test**. For SSH/Telnet, "can use" means the login prompt appears. ICMP is reported separately and is not a service. Exposure is measured only for **Sales** (SAL-PC1), because only Sales is tested against every inventory item (T02, T08, T10, T11, T19, T20, T23–T26). It is not extrapolated to other departments. |
+| **Exposed service** | A (destination host, service) pair from the **service inventory** below that is actually running in our build **and** that a given source can use under the stage's policy, **as shown by a test**. For SSH/Telnet, "can use" means the login prompt appears. ICMP is reported separately and is not a service. Exposure is measured only for **Sales** (SAL-PC1), because only Sales is tested against every inventory item (T02, T08, T10, T11, T19, T20, T23–T26). It is not extrapolated to other departments. The inventory contains **internal services only**; Sales' Internet browsing (R7) is not part of the exposure sweep and is not tested from Sales. |
 | **Unnecessary exposure** | Exposed services minus those Sales requires (WEB:80, WEB:443, DNS:53) |
 | **Order-dependent entry pair** | Two entries in the same ACL, *i* before *j*, with **opposite actions**, whose match sets **overlap** (some packet matches both). Swapping them changes the decision for the overlapping packets. The terminal `deny ip any any` is excluded, because every permit trivially overlaps it. Pairs with the *same* action that overlap are counted separately as **redundancy candidates**. This is a structural property of the configuration. It is observed in traffic only through M1. |
-| **Zero-match entries** | Explicit entries whose counter is still 0 after the full test run. These are *candidates* for redundancy or shadowing, relative to the tested flows only. |
+| **Zero-match entries** | Explicit entries whose counter is still 0 after the full test run. These are *candidates* for redundancy or shadowing, relative to the 26 test cases only. |
 | **Lines changed** | Number of added plus removed lines between consecutive saved `show running-config` files |
 
 **Service inventory (9 items):**
@@ -304,7 +304,14 @@ All values are **planned**, derived from the design. Measured values come only f
 - R-EDGE: SSH
 - R-EDGE: Telnet
 
-The router services are counted once per router, whichever address is used. The Telnet items stop being available in Stage 3 because `transport input ssh` removes them.
+A router service counts as exposed only if it is reachable on an address **actually tested** from SAL-PC1:
+
+- R-CORE SSH: 192.168.40.1 (T11) and 192.168.50.1 (T19)
+- R-CORE Telnet: 192.168.40.1 (T25)
+- R-EDGE SSH: 10.0.0.2 (T20)
+- R-EDGE Telnet: 10.0.0.2 (T26)
+
+Other router addresses (for example 10.0.0.1, or Telnet to 192.168.50.1) are not tested in the stages, so the metric says nothing about them. The Telnet items are expected to stop being available in Stage 3 because `transport input ssh` removes them.
 
 ### 6.2 Planned values
 
