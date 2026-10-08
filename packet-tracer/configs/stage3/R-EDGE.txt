@@ -1,0 +1,26 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! STAGE 3 - apply to stage2.pkt. Edge return traffic narrowed to web source ports; ICMP returns removed.
+enable
+configure terminal
+interface GigabitEthernet0/1
+ no ip access-group ACL-EDGE-IN in
+exit
+no ip access-list extended ACL-EDGE-IN
+ip access-list extended ACL-EDGE-IN
+ remark R8 public portal
+ permit tcp any host 192.168.50.10 eq www
+ permit tcp any host 192.168.50.10 eq 443
+ remark R7 return traffic - web source ports only
+ permit tcp any eq www 192.168.0.0 0.0.255.255 established
+ permit tcp any eq 443 192.168.0.0 0.0.255.255 established
+ remark X7
+ deny ip any any
+exit
+interface GigabitEthernet0/1
+ ip access-group ACL-EDGE-IN in
+exit
+line vty 0 15
+ transport input ssh
+end
+write memory

@@ -1,0 +1,17 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! STAGE 2 - apply to stage1.pkt. ACL-EDGE-IN unchanged; only VTY restricted to IT.
+enable
+configure terminal
+line vty 0 15
+ no access-class ACL-VTY in
+exit
+no ip access-list standard ACL-VTY
+ip access-list standard ACL-VTY
+ remark R5 X4 - IT only
+ permit 192.168.30.0 0.0.0.255
+exit
+line vty 0 15
+ access-class ACL-VTY in
+end
+write memory

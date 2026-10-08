@@ -1,0 +1,39 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+enable
+configure terminal
+hostname SW-ACCESS
+no ip domain-lookup
+enable secret Lab#Enable26
+vlan 10
+ name HR
+vlan 20
+ name FINANCE
+vlan 30
+ name IT
+vlan 40
+ name SALES
+exit
+interface range FastEthernet0/1 - 2
+ switchport mode access
+ switchport access vlan 10
+interface range FastEthernet0/3 - 4
+ switchport mode access
+ switchport access vlan 20
+interface range FastEthernet0/5 - 6
+ switchport mode access
+ switchport access vlan 30
+interface range FastEthernet0/7 - 8
+ switchport mode access
+ switchport access vlan 40
+interface GigabitEthernet0/1
+ description Trunk to R-CORE G0/0
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40
+! Unused ports shut (constant baseline hardening, identical in all stages)
+interface range FastEthernet0/9 - 24
+ shutdown
+interface GigabitEthernet0/2
+ shutdown
+end
+write memory

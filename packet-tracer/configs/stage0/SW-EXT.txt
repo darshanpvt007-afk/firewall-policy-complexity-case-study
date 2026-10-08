@@ -1,0 +1,8 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! SW-EXT only joins EXT-WEB, EXT-HOST and R-EDGE G0/1 in default VLAN 1.
+enable
+configure terminal
+hostname SW-EXT
+end
+write memory

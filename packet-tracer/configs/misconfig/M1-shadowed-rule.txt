@@ -1,0 +1,25 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! M1 - CONTROLLED MISCONFIGURATION. Run ONLY on m1.pkt (a copy of stage2.pkt). Results kept separate.
+! Device: R-CORE
+! --- M1-a: append a deny without a sequence number (IOS appends it at the end) ---
+! P-REMARK/P-SEQ: first run 'show access-lists' and confirm the actual sequence numbers before using 'no <seq>'.
+enable
+configure terminal
+ip access-list extended ACL-SAL-IN
+ deny tcp 192.168.40.0 0.0.0.255 host 192.168.50.40 eq ftp
+end
+show access-lists ACL-SAL-IN
+clear access-list counters
+! --- M1-b: run test T08 from SAL-PC1 (ftp 192.168.50.40), then: ---
+show access-lists ACL-SAL-IN
+! Expected: the seq 10 permit counter rises; the appended deny shows no matches (shadowed)
+! --- M1-c: fix by inserting the deny before the broad permit (P-SEQ) ---
+configure terminal
+ip access-list extended ACL-SAL-IN
+ no 50
+ 5 deny tcp 192.168.40.0 0.0.0.255 host 192.168.50.40 eq ftp
+end
+clear access-list counters
+! Re-run T08, then:
+show access-lists ACL-SAL-IN

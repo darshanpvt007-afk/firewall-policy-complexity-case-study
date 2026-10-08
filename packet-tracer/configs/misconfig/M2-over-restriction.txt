@@ -1,0 +1,15 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! M2 - CONTROLLED MISCONFIGURATION. Run ONLY on m2.pkt (a copy of stage3.pkt). Results kept separate.
+! Device: R-CORE
+! P-REMARK/P-SEQ: first run 'show access-lists' and confirm the actual sequence numbers before using 'no <seq>'.
+enable
+configure terminal
+ip access-list extended ACL-HR-IN
+ no 10
+end
+show access-lists ACL-HR-IN
+clear access-list counters
+! From HR-PC1: nslookup portal.corp.test ; browser http://192.168.50.10 ; browser http://portal.corp.test
+show access-lists ACL-HR-IN
+! Expected: DNS lookup and name-based browsing fail; IP-based browsing works; the deny-internal counter rises

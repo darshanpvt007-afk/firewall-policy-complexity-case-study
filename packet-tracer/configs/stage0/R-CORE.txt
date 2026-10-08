@@ -1,0 +1,55 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! Stage 0 - base configuration (no ACLs)
+enable
+configure terminal
+hostname R-CORE
+no ip domain-lookup
+enable secret Lab#Enable26
+username itadmin privilege 15 secret ItAdmin#26
+ip domain-name corp.test
+! P-SSH: if PT rejects the one-line form, run "crypto key generate rsa" and answer 1024
+crypto key generate rsa general-keys modulus 1024
+ip ssh version 2
+!
+interface GigabitEthernet0/0
+ description Trunk to SW-ACCESS G0/1
+ no ip address
+ no shutdown
+interface GigabitEthernet0/0.10
+ description VLAN10 HR
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+interface GigabitEthernet0/0.20
+ description VLAN20 FINANCE
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+interface GigabitEthernet0/0.30
+ description VLAN30 IT
+ encapsulation dot1Q 30
+ ip address 192.168.30.1 255.255.255.0
+interface GigabitEthernet0/0.40
+ description VLAN40 SALES
+ encapsulation dot1Q 40
+ ip address 192.168.40.1 255.255.255.0
+interface GigabitEthernet0/1
+ description Trunk to SW-SERVER G0/1
+ no ip address
+ no shutdown
+interface GigabitEthernet0/1.50
+ description VLAN50 SERVERS
+ encapsulation dot1Q 50
+ ip address 192.168.50.1 255.255.255.0
+interface GigabitEthernet0/2
+ description Transit to R-EDGE G0/0
+ ip address 10.0.0.1 255.255.255.252
+ no shutdown
+exit
+ip route 0.0.0.0 0.0.0.0 10.0.0.2
+!
+! P-VTY: if PT offers only lines 0-4, use "line vty 0 4" and record it
+line vty 0 15
+ login local
+ transport input telnet ssh
+end
+write memory

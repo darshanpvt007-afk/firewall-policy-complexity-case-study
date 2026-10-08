@@ -1,0 +1,74 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! STAGE 2 (department-level) - apply to stage1.pkt. Traceability: acl-design.md section 4
+enable
+configure terminal
+! --- remove Stage 1 internal policy ---
+interface GigabitEthernet0/0.10
+ no ip access-group ACL-USERS-IN in
+interface GigabitEthernet0/0.20
+ no ip access-group ACL-USERS-IN in
+interface GigabitEthernet0/0.30
+ no ip access-group ACL-USERS-IN in
+interface GigabitEthernet0/0.40
+ no ip access-group ACL-USERS-IN in
+exit
+no ip access-list extended ACL-USERS-IN
+!
+ip access-list extended ACL-HR-IN
+ remark R1 R2 R3 - whole server zone
+ permit ip 192.168.10.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark X1 X4 - other internal destinations
+ deny ip 192.168.10.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 - outside
+ permit ip 192.168.10.0 0.0.0.255 any
+ deny ip any any
+ip access-list extended ACL-FIN-IN
+ remark R1 R2 R4 - whole server zone
+ permit ip 192.168.20.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark X1 X4
+ deny ip 192.168.20.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7
+ permit ip 192.168.20.0 0.0.0.255 any
+ deny ip any any
+ip access-list extended ACL-IT-IN
+ remark R1 R2 R6 - whole server zone
+ permit ip 192.168.30.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark R5 - R-CORE management address
+ permit ip 192.168.30.0 0.0.0.255 host 192.168.30.1
+ remark X1
+ deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 and R5 (R-EDGE 10.0.0.2)
+ permit ip 192.168.30.0 0.0.0.255 any
+ deny ip any any
+ip access-list extended ACL-SAL-IN
+ remark R1 R2 - whole server zone
+ permit ip 192.168.40.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark X1 X4
+ deny ip 192.168.40.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7
+ permit ip 192.168.40.0 0.0.0.255 any
+ deny ip any any
+exit
+interface GigabitEthernet0/0.10
+ ip access-group ACL-HR-IN in
+interface GigabitEthernet0/0.20
+ ip access-group ACL-FIN-IN in
+interface GigabitEthernet0/0.30
+ ip access-group ACL-IT-IN in
+interface GigabitEthernet0/0.40
+ ip access-group ACL-SAL-IN in
+exit
+! --- management restricted to IT (X4); Telnet still allowed (X5 residual) ---
+line vty 0 15
+ no access-class ACL-VTY in
+exit
+no ip access-list standard ACL-VTY
+ip access-list standard ACL-VTY
+ remark R5 X4 - IT only
+ permit 192.168.30.0 0.0.0.255
+exit
+line vty 0 15
+ access-class ACL-VTY in
+end
+write memory
