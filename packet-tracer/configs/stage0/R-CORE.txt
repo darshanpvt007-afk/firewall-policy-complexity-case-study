@@ -8,7 +8,7 @@ no ip domain-lookup
 enable secret Lab#Enable26
 username itadmin privilege 15 secret ItAdmin#26
 ip domain-name corp.test
-! P-SSH: if PT rejects the one-line form, run "crypto key generate rsa" and answer 1024
+! Pilot P8: if PT rejects the one-line form, run "crypto key generate rsa" and answer 1024
 crypto key generate rsa general-keys modulus 1024
 ip ssh version 2
 !
@@ -47,7 +47,7 @@ interface GigabitEthernet0/2
 exit
 ip route 0.0.0.0 0.0.0.0 10.0.0.2
 !
-! P-VTY: if PT offers only lines 0-4, use "line vty 0 4" and record it
+! Pilot P8: if PT offers only lines 0-4, use "line vty 0 4" and record it
 line vty 0 15
  login local
  transport input telnet ssh

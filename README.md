@@ -13,12 +13,22 @@ This is one integrated case study with three parts:
 | Gate | State |
 |---|---|
 | G0 Architecture | **Approved** 2026-10-08 (with conditions) |
-| Detailed network design | Draft for review (`network-design/`, `packet-tracer/configs/`) |
+| Detailed network design | Complete; reconciled 2026-10-08 (`network-design/`, `packet-tracer/`) |
+| Pilot (P1–P9) | Not started (`packet-tracer/PILOT-PLAN.md`) |
 | G1 Network (Stage 0) | Not started |
 | G2 Policy stages 1–3 | Not started |
 | G3 References verified | 0 / 15 (0 / 8 peer-reviewed or standards) |
 | G4 Drafts | Not started |
 | G5 QC | Not started |
+
+## Assignment requirements (from `admin/Guidelines.pdf`)
+
+- One combined report, with Parts A, B and C clearly labelled. All three parts are compulsory.
+- **Part A** is a review paper of 4–6 pages, excluding references, with this section order: Abstract → Keywords → Introduction → Literature Review/Related Work → Comparative Discussion/Analysis → Conclusion and Future Scope → References.
+- **References:** at least 15 in total, of which at least 8 are peer-reviewed papers or original standards. One citation style throughout. Similarity below 15%.
+- **Part B** is an actual Packet Tracer simulation, illustrated only with **original screenshots** from our own simulation. Each important step needs a configuration screenshot, a result screenshot and a caption. Comparisons go in tables or charts.
+- **Part C** is an alignment and limitations note of **half a page to one page**.
+- **Also required:** a title page (team name, topic, members, registration numbers) and an Individual Contribution Statement.
 
 ## Key files
 

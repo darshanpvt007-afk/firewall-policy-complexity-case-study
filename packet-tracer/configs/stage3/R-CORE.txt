@@ -37,7 +37,7 @@ ip access-list extended ACL-FIN-IN
  remark R2 portal
  permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.10 eq www
  permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.10 eq 443
- remark R4 finance records (FTP control). P-FTP: add ftp-data entry here only if pilot requires it
+ remark R4 finance records - FTP control only. No data-port entry unless pilot P7 requires it
  permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.40 eq ftp
  remark X1-X6 - must stay ABOVE the R7 permits
  deny ip 192.168.20.0 0.0.0.255 192.168.0.0 0.0.255.255

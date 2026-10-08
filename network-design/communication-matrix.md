@@ -53,8 +53,8 @@ Test definitions are in `packet-tracer/tests/test-matrix.md`.
 
 | Requirement | Tests |
 |---|---|
-| R1 | T03 (+ M2) |
-| R2 | T01, T02 |
+| R1 | T03, T24 (+ M2) |
+| R2 | T01, T02, T23 |
 | R3 | T05 |
 | R4 | T04 |
 | R5 | T06, T22 |
@@ -62,10 +62,10 @@ Test definitions are in `packet-tracer/tests/test-matrix.md`.
 | R7 | T17 |
 | R8 | T15 |
 | X1 | T07 |
-| X2 | T10 (+ M3) |
+| X2 | T10 |
 | X3 | T08, T09 (+ M1) |
-| X4 | T11, T19, T20 |
-| X5 | T12 |
+| X4 | T11, T19, T20, T25, T26 |
+| X5 | T12, T25, T26 |
 | X6 | T13 |
 | X7 | T16, T21 |
 | U1 | T18 |
@@ -76,15 +76,15 @@ Every R and X requirement has at least one test.
 
 | Req. | Can the topology carry it? | PT service or client needed | Status |
 |---|---|---|---|
-| R1 | Yes: user VLAN → R-CORE → VLAN 50 | Server DNS service; PC `nslookup` | Pending pilot P-DNS |
-| R2 | Yes | Server HTTP/HTTPS; PC web browser | Pending P-HTTPS |
-| R3 | Yes | Server HTTPS; PC browser | Pending P-HTTPS |
-| R4 | Yes | Server FTP; PC `ftp` client | **Pending P-FTP.** The data channel may need an extra ACL entry; fallback is HTTPS. |
-| R5 | Yes. R-CORE is reached via 192.168.30.1; R-EDGE via 10.0.0.2 (routed through R-CORE G0/2) | 2911 SSH server; PC `ssh -l` | Pending P-SSH, P-VTY |
-| R6 | Yes | ICMP (always available) | Pending P-CNT (only for counter evidence) |
-| R7 | Yes: R-CORE default route → R-EDGE → 203.0.113.0/24; return through R-EDGE's 192.168.0.0/16 route | EXT-WEB HTTP/HTTPS | Pending P-EST |
-| R8 | Yes: R-EDGE → R-CORE → VLAN 50 | WEB-SRV HTTP | Pending P-EST (for the deny side) |
-| X1–X7 | Each forbidden flow is routable when no ACL applies (verified in Stage 0), so denying it is a real policy effect | Same clients as above | Pending Stage 0 |
+| R1 | Yes: user VLAN → R-CORE → VLAN 50 | Server DNS service; PC `nslookup` | Pending pilot P1 |
+| R2 | Yes | Server HTTP/HTTPS; PC web browser | Pending P2 |
+| R3 | Yes | Server HTTPS; PC browser | Pending P2 |
+| R4 | Yes for the control connection. In Stage 3, the FTP **data** connection would be blocked under real IOS behaviour (`acl-design.md` §5.1). | Server FTP; PC `ftp` client | **Pending pilot P7.** No data-port entry is added unless P7 shows one is needed. Fallback: HTTPS. |
+| R5 | Yes. R-CORE is reached via 192.168.30.1; R-EDGE via 10.0.0.2 (routed through R-CORE G0/2) | 2911 SSH server; PC `ssh -l` | Pending P8 |
+| R6 | Yes | ICMP (always available) | Pending P3 (only for counter evidence) |
+| R7 | Yes: R-CORE default route → R-EDGE → 203.0.113.0/24; return through R-EDGE's 192.168.0.0/16 route | EXT-WEB HTTP/HTTPS | Pending P6 |
+| R8 | Yes: R-EDGE → R-CORE → VLAN 50 | WEB-SRV HTTP | Pending P6 (for the deny side) |
+| X1–X7 | Each forbidden flow is routable when no ACL applies (verified in Stage 0), so denying it is a real policy effect | Same clients as above | Pending the Stage 0 positive control (all 26 tests must pass with no ACLs) |
 | U1 | Same VLAN, so it is switched only | ICMP | Confirmed by design; to be shown by T18 |
 
 No requirement depends on a service that PT is known to lack. The database service was already replaced by FTP at the architecture stage.

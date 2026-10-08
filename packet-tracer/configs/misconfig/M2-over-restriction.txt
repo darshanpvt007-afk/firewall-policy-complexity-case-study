@@ -2,7 +2,7 @@
 ! Lab-only credentials. See network-design/ for rationale and ACL traceability.
 ! M2 - CONTROLLED MISCONFIGURATION. Run ONLY on m2.pkt (a copy of stage3.pkt). Results kept separate.
 ! Device: R-CORE
-! P-REMARK/P-SEQ: first run 'show access-lists' and confirm the actual sequence numbers before using 'no <seq>'.
+! Pilot P5: first run 'show access-lists' and confirm the actual sequence numbers before using 'no <seq>'.
 enable
 configure terminal
 ip access-list extended ACL-HR-IN
