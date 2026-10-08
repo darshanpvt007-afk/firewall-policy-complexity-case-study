@@ -84,7 +84,7 @@ Short form (same `[TEAM DECISION]`): *"How does refining policy from broad, to d
 Why this wording:
 - It names the three stages, so the experimental design follows directly from the question.
 - The experiment compares **policy stages**. Each stage bundles several refinements (granularity, ACL structure, edge narrowing, VTY transport), so results are attributed to the stage as a whole, not to granularity alone (`network-design/acl-design.md` §1).
-- Answers are limited to the **26 test cases**. Untested combinations are only described as "expected by rule trace".
+- Answers are limited to the test cases actually run: **26 designed, 17 selected for this draft** (the other nine are "not run"). Untested combinations are only described as "expected by rule trace".
 - It splits the vague phrase "complexity and management" into things we can observe in Packet Tracer: size, specificity and order-dependence.
 - The comparison with literature is part of the question, so Part C has a clear job.
 - It does not assume the answer.
@@ -170,7 +170,7 @@ Each theme in §2 ends with a short block: **Agreement / Disagreement / Limitati
 1. Experimental objective and hypotheses (E1–E4)
 2. Communication requirements (required and forbidden flows matrix)
 3. Network architecture (logical and physical topology, devices, VLANs, addressing, zones)
-4. Network configuration (VLANs, trunks, inter-VLAN routing, static routing, services, SSH), Stage 0 baseline (all 26 tests pass with no ACLs), and pilot findings
+4. Network configuration (VLANs, trunks, inter-VLAN routing, static routing, services, SSH), Stage 0 baseline (the 17 selected test cases pass with no ACLs), and pilot findings (P3, P7, P8 for this draft)
 5. Stage 1: broad policy (configuration, tests, results)
 6. Stage 2: department-level policy (configuration, tests, results)
 7. Stage 3: service-level least-privilege policy (configuration, tests, results)
@@ -279,12 +279,12 @@ There is also an **uncontrollable flow, U1**: traffic between PCs in the same VL
 
 Full details are in `network-design/acl-design.md`. All counts below are **planned**, not measured.
 
-| Stage | Name | Policy logic | Planned forbidden-flow tests permitted (of 13) |
+| Stage | Name | Policy logic | Planned forbidden tests permitted: full set (of 13) / draft subset (of 8) |
 |---|---|---|---|
-| 0 | Connectivity baseline | **No ACLs.** Verifies VLANs, routing and services, and runs **all 26 tests**. Every test must pass, so that a later denial can only come from an ACL. **This is not a policy stage.** | — (all reachable) |
-| 1 | Broad | Edge ACL. One shared internal ACL (any internal source → any destination). VTY open to any internal source, Telnet + SSH. | 11 |
-| 2 | Department-level | Per-department ACLs (IP/subnet only): own department → whole server subnet and outside; no other departments. VTY limited to IT. | 5 |
-| 3 | Service-level least privilege | Per-department ACLs naming host + protocol + port. Edge return traffic narrowed. VTY limited to IT and SSH only. | 0 |
+| 0 | Connectivity baseline | **No ACLs.** Verifies VLANs, routing and services, and runs the **17 selected test cases** (of 26 designed). Every one must pass, so that a later denial can only come from an ACL. **This is not a policy stage.** | — (all reachable) |
+| 1 | Broad | Edge ACL. One shared internal ACL (any internal source → any destination). VTY open to any internal source, Telnet + SSH. | 11 / 7 |
+| 2 | Department-level | Per-department ACLs (IP/subnet only): own department → whole server subnet and outside; no other departments. VTY limited to IT. | 5 / 4 |
+| 3 | Service-level least privilege | Per-department ACLs naming host + protocol + port. Edge return traffic narrowed. VTY limited to IT and SSH only. | 0 / 0 |
 | M1 | Shadowed rule (copy of **Stage 2**) | A deny appended below a broader permit; shown with counters; then fixed with a sequence number | Reported separately |
 | M2 | Over-restriction (copy of **Stage 3**) | DNS permit removed; required flow R1 breaks | Reported separately |
 | M3 | Misordered permit | **Deferred.** Needs a team decision to reinstate. | — |
@@ -327,7 +327,7 @@ Measured values go into `packet-tracer/tests/test-matrix.md` §7. "Configuration
 
 The full matrix is in `packet-tracer/tests/test-matrix.md`.
 
-- **26 tests:** 12 required, 13 forbidden, plus one same-VLAN control. They are run in Stage 0 and in every stage, in the same order, from the same PCs, after `clear access-list counters`.
+- **26 designed tests:** 12 required, 13 forbidden, plus one same-VLAN control. **For this draft the same 17 are run** in Stage 0 and in every stage, in the same order, from the same PCs, after `clear access-list counters`; the other nine are "not run" (`packet-tracer/tests/test-matrix.md` §1).
 - **Method matches the service:**
   - browser for HTTP/HTTPS
   - `nslookup` for DNS
@@ -337,7 +337,7 @@ The full matrix is in `packet-tracer/tests/test-matrix.md`.
 - **Every denial needs two pieces of evidence:**
   - the client-side failure, and
   - the deny entry's counter rising (or Simulation Mode showing the drop)
-- **Tested directions** are listed in `acl-design.md` §1.3. Server-initiated traffic is neither filtered nor tested. Conclusions are limited to the 26 test cases.
+- **Tested directions** are listed in `acl-design.md` §1.3. Server-initiated traffic is neither filtered nor tested. Conclusions are limited to the test cases actually run (17 for this draft).
 
 ---
 
@@ -413,7 +413,7 @@ There is one project. Everyone contributes to every Part. Roles describe **respo
 | Gate | Pass condition |
 |---|---|
 | G0 Architecture | This document approved; decisions logged |
-| G1 Network | Stage 0: all 26 tests pass with no ACLs; every pilot step is PASS, or FAIL with a logged fallback |
+| G1 Network | Stage 0: the 17 selected test cases pass with no ACLs; pilot steps P3, P7 and P8 are PASS, or FAIL with a logged fallback |
 | G2 Policy stages | Stages 1–3 and M1/M2 run; actual results filled in; evidence indexed (M3 deferred) |
 | G3 References | 15 or more verified, 8 or more peer-reviewed or standards, every row marked Verified = Yes |
 | G4 Drafts | A, B and C drafted in members' own words; every claim cited; every result traceable to evidence |

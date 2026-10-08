@@ -58,7 +58,7 @@ Each stage is a *bundle* of refinements, **not** a change in granularity alone. 
 | **Same-VLAN host ↔ host** | **No** (Layer 2 only) | Yes, as a control: T18 |
 | Router-originated traffic, inter-server traffic, external → user other than ICMP echo | No / not applicable | No |
 
-**Scope of conclusions.** Results apply **only to the 26 test cases**, in this topology, under Packet Tracer's protocol models. Untested source/destination/service combinations are described as "expected by rule trace" and never reported as observed.
+**Scope of conclusions.** Results apply **only to the test cases actually run** (for this draft, the 17 selected of the 26 designed; see `packet-tracer/tests/test-matrix.md` §1), in this topology, under Packet Tracer's protocol models. Untested source/destination/service combinations are described as "expected by rule trace" and never reported as observed.
 
 ## 2. Placement validation
 
@@ -289,7 +289,7 @@ All values are **planned**, derived from the design. Measured values come only f
 | **Exposed service** | A (destination host, service) pair from the **service inventory** below that is actually running in our build **and** that a given source can use under the stage's policy, **as shown by a test**. For SSH/Telnet, "can use" means the login prompt appears. ICMP is reported separately and is not a service. Exposure is measured only for **Sales** (SAL-PC1), because only Sales is tested against every inventory item (T02, T08, T10, T11, T19, T20, T23–T26). It is not extrapolated to other departments. The inventory contains **internal services only**; Sales' Internet browsing (R7) is not part of the exposure sweep and is not tested from Sales. |
 | **Unnecessary exposure** | Exposed services minus those Sales requires (WEB:80, WEB:443, DNS:53) |
 | **Order-dependent entry pair** | Two entries in the same ACL, *i* before *j*, with **opposite actions**, whose match sets **overlap** (some packet matches both). Swapping them changes the decision for the overlapping packets. The terminal `deny ip any any` is excluded, because every permit trivially overlaps it. Pairs with the *same* action that overlap are counted separately as **redundancy candidates**. This is a structural property of the configuration. It is observed in traffic only through M1. |
-| **Zero-match entries** | Explicit entries whose counter is still 0 after the full test run. These are *candidates* for redundancy or shadowing, relative to the 26 test cases only. |
+| **Zero-match entries** | Explicit entries whose counter is still 0 after the full test run. These are *candidates* for redundancy or shadowing, relative to the test cases actually run (17 for this draft). |
 | **Lines changed** | Number of added plus removed lines between consecutive saved `show running-config` files |
 
 **Service inventory (9 items):**
@@ -322,8 +322,10 @@ Other router addresses (for example 10.0.0.1, or Telnet to 192.168.50.1) are not
 | Explicit entries | 11 | 26 | 40 |
 | Edge-ACL entries | 7 | 7 | 5 |
 | Order-dependent pairs | 0 | 9 | 24 |
-| Required-flow tests passing (of 12) | 12 | 12 | 12 (T04 depends on P7) |
-| Forbidden-flow tests permitted (of 13) | 11 | 5 | 0 |
+| Required-flow tests passing (of 12; full designed set) | 12 | 12 | 12 (T04 depends on P7) |
+| Required test cases passing (of 8 run; draft subset) | 8 | 8 | 8 (T04 depends on P7) |
+| Forbidden-flow tests permitted (of 13; full designed set) | 11 | 5 | 0 |
+| Forbidden test cases permitted (of 8 run; draft subset) | 7 | 4 | 0 |
 | Sales: exposed services (of 9) / unnecessary | 9 / 6 | 5 / 2 | 3 / 0 |
 
 How the order-dependent pairs were counted:

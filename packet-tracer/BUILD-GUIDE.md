@@ -4,7 +4,7 @@
 
 Follow the steps in order. Do not start a step until the previous step's checks pass.
 
-> **Draft scope (team decision, 2026-10-08):** for this draft, run the **17-test subset** listed in `tests/test-matrix.md` §1 wherever this guide says "all 26". Run pilot steps P3, P7 and P8 only. Mark everything else "not run".
+> **Draft scope (team decision, 2026-10-08):** this draft runs the **17 selected test cases** (of the 26 designed) listed in `tests/test-matrix.md` §1, the same 17 in Stage 0 and Stages 1–3. Pilot steps P3, P7 and P8 only. Everything else is marked "not run".
 
 ## Step 1 — Place and cable the devices
 
@@ -34,20 +34,23 @@ Save each command's output to `results/stage0/`.
 | Routes | `show ip route` on both routers | R-CORE has a default route via 10.0.0.2; R-EDGE has 192.168.0.0/16 via 10.0.0.1 |
 | No ACLs | `show access-lists` on both routers | Empty |
 
-### 3b. Positive control: all 26 tests
+### 3b. Positive control: the 17 selected test cases (of 26 designed)
 
-- Run every test in `tests/test-matrix.md` §3 (S0-T01 … S0-T26), using the same methods and pass criteria as the stage runs.
-- **Every test must be allowed**, including the forbidden flows and the external ones (T16, T21). That proves each flow is routable and each service is running.
+- Run the 17 selected test cases in `tests/test-matrix.md` §3 (T01, T03, T04, T05, T06, T07, T08, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19), using the same methods and pass criteria as the stage runs. The other nine designed test cases (T02, T09, T20–T26) are **not run** for this draft; leave their rows marked "not run".
+- **Every selected test must be allowed**, including the forbidden flows and the external ones (T16). That proves each flow is routable and each service is running.
 - Pay particular attention to these:
   - **T04:** FTP login, `dir` and `get` must all work with no ACL. This is the reference behaviour for pilot P7.
-  - **T06, T11, T12, T19, T20, T22, T25, T26:** a login prompt must appear on both routers, on every address used.
-  - **T17 and T21:** external-to-internal routing works in both directions, since there is no NAT.
+  - **T06, T11, T12, T19:** a login prompt must appear on R-CORE, on every address used.
+  - **T15 and T17:** external-to-internal routing works in both directions, since there is no NAT.
+- **Recording:** write only what you observe in the Actual column, with an evidence ID. If a test fails, keep that row as the first attempt (for example "attempt 1: failed — Request Timeout"), fix the cause, log the fix in `planning/decisions-log.md`, then re-run **all 17** and record the retest separately (for example "attempt 2: allowed — page loaded").
 - If any Stage 0 test fails, **fix the network first.** A later denial must never be confused with a routing or service fault.
 - Save as `topology/stage0.pkt`. Capture figures F01–F04.
 
 ## Step 4 — Pilot (Gate G1, part 2)
 
-- Run `PILOT-PLAN.md` steps P1–P9 **in order**, on `topology/pilot.pkt`, which is a copy of `stage0.pkt`.
+- Start only after all 17 Stage 0 test cases pass.
+- Run `PILOT-PLAN.md` steps **P3, P7 and P8** (draft scope; P1, P2, P4, P5, P6 and P9 are not run), on `topology/pilot.pkt`, which is a copy of `stage0.pkt`.
+- Log every pilot result, and any fallback as a `[TEAM DECISION]`, in `planning/decisions-log.md` **before** changing any Stage 3 script.
 - If a fallback is adopted, update the scripts and the design documents before going on.
 
 ## Step 5 — Each policy stage
@@ -65,7 +68,7 @@ Repeat for Stage 1, then Stage 2, then Stage 3.
 | `show ip interface <ap>` for each application point | `results/stageN/` (confirms which ACL is bound, and in which direction) |
 
 4. Run `clear access-list counters` on both routers.
-5. Run **all 26 tests** in order, using the methods in `tests/test-matrix.md`. Record each Actual result and its evidence ID immediately.
+5. Run the **same 17 selected test cases** in order, using the methods in `tests/test-matrix.md`. Record each Actual result and its evidence ID immediately. Leave the nine unselected rows marked "not run".
 6. Save `show access-lists` → `results/stageN/acl-after.txt`. This is the denial evidence and the source for zero-match entries.
 7. Capture Simulation Mode evidence for at least one allowed flow and one denied flow.
 8. Save as `topology/stageN.pkt`.

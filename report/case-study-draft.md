@@ -68,7 +68,7 @@ Standards guidance sets a demanding target: block all traffic that has not been 
 
 Put together, these positions create the tension this review examines. A broad policy is short and easy to write, but it allows far more communication than anyone needs. A least-privilege policy allows only what is needed, but it has more rules, more conditions and more dependence on rule order, which are exactly the properties that [2] associates with configuration errors. We ask how the literature treats this trade-off, and where its evidence is thin.
 
-**Method.** We searched IEEE Xplore, the ACM Digital Library, Google Scholar, the IETF RFC series and the NIST and CISA publication catalogues, using terms such as *firewall policy anomaly*, *firewall configuration errors*, *ACL shadowing*, *least privilege*, *microsegmentation* and *zero trust architecture*. [PLACEHOLDER: search dates and hit counts from `research/search-log.md`.] We preferred peer-reviewed papers and original standards. Government guidance and one practitioner article are used only as supporting context, and are labelled as such in the reference list.
+**Method.** Sources were identified through IEEE Xplore, the ACM Digital Library, Google Scholar, the IETF RFC series and the NIST and CISA publication catalogues, using terms such as *firewall policy anomaly*, *firewall configuration errors*, *ACL shadowing*, *least privilege*, *microsegmentation* and *zero trust architecture*. [PLACEHOLDER: search dates and hit counts from `research/search-log.md`.] [TEAM CHECK: the team has not yet run and logged these searches itself. Once `research/search-log.md` is filled in, this sentence can be written as "we searched", and phrases such as "the studies we found" in Sections 2–3 can stand.] We preferred peer-reviewed papers and original standards. Government guidance and one practitioner article are used only as supporting context, and are labelled as such in the reference list.
 
 Section 2 reviews the literature by theme, Section 3 compares the approaches and gives our interpretation, and Section 4 concludes.
 
@@ -156,7 +156,7 @@ Future work should measure security gain and management cost together, on the sa
 
 ### References (shared by Parts A, B and C)
 
-The references follow IEEE style. We checked the bibliographic details of every entry online on 2026-10-08 (Appendix B), and give DOIs or URLs only where an authoritative listing showed them. The team has not yet checked every claim against the full text.
+The references follow IEEE style. The bibliographic details of every entry were checked online during drafting on 2026-10-08 (Appendix B); DOIs or URLs are given only where an authoritative listing showed them. The team has not yet checked the claims against the full texts.
 
 [1] A. Wool, "A quantitative study of firewall configuration errors," *Computer*, vol. 37, no. 6, pp. 62–67, Jun. 2004. [Online]. Available: https://ieeexplore.ieee.org/document/1306389
 
@@ -476,7 +476,7 @@ These experiments recreate two of the problems described in Part A on **copies**
 |------------------------------|----------|------------------------------|
 | Forbidden test cases permitted (of 8 run): 7 → 4 → 0 | [3], [5] | Would agree |
 | ACL entries 11 → 26 → 40; order-dependent pairs 0 → 9 → 24 | [2] | Would agree |
-| Edge ACL shrinks (7 → 5) while becoming stricter | [2], [9] | Would partly agree (rule count can mislead) |
+| Edge-ACL entries 7 → 7 → 5 (Stage 1 → 2 → 3) while the edge becomes stricter in Stage 3 | [2], [9] | Would partly agree (rule count can mislead) |
 | M1 deny shows 0 matches | [9], [10] | Would agree, if counters work in Packet Tracer (P3) |
 | Same-VLAN traffic allowed in every stage (T18) | [15], [16] | Would agree; a limit of router ACLs |
 
@@ -484,7 +484,7 @@ These experiments recreate two of the problems described in Part A on **copies**
 
 **C.2 What the simulation cannot capture.** Our network has 19 devices and a few dozen rules, while the rule sets studied in [1] and [2] were large and came from several vendors. The simulation leaves out the people and processes that cause policies to drift over time [13]. ACLs decide only on addresses and ports, never on user or device identity [4], [8], [14], so our Stage 3 is not Zero Trust. The `established` keyword is stateless and accepts any TCP segment with the ACK flag set, unlike a stateful firewall. There is no real attack traffic, logging or monitoring, and protocol behaviour follows Packet Tracer's models; how FTP behaves is still pending pilot P7.
 
-**C.3 Simplifications.** We use FTP in place of a database, which Packet Tracer lacks. There is no NAT or DMZ, routing is static, and a single core router has no redundancy. Server-initiated traffic is neither filtered nor tested. Finally, we run only 17 of the 26 designed test cases, so the Sales exposure metric is not measured and zero-match counts reflect only the tests we ran.
+**C.3 Simplifications.** We use FTP in place of a database, which Packet Tracer lacks. There is no NAT or DMZ, routing is static, and a single core router has no redundancy. Server-initiated traffic is neither filtered nor tested. Finally, we run only 17 of the 26 designed test cases, so the Sales exposure metric is not measured and zero-match counts will reflect only the tests run.
 
 \newpage
 
@@ -517,7 +517,7 @@ Our configuration scripts are in the project repository. **We have not yet teste
 
 # Appendix B — Reference Verification Record
 
-**What was checked.** On 2026-10-08 we checked the bibliographic details below against listings from the publisher, IETF, NIST, CISA, USENIX, the authors' own pages or institutional repositories. Crossref and dblp could not be reached from the drafting environment.
+**What was checked.** On 2026-10-08, during drafting, the bibliographic details below were checked against listings from the publisher, IETF, NIST, CISA, USENIX, the authors' own pages or institutional repositories. Crossref and dblp could not be reached from the drafting environment. These are metadata checks only; no full text has yet been read by a team member.
 
 **Still to do.** For each reference, the member who cites it must read the full text, confirm the claim we attribute to it, tick the last column and add their name.
 

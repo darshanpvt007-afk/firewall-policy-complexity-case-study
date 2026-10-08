@@ -16,7 +16,7 @@ Rules:
 | F01 | Final enterprise topology (logical) | config | 0 | | | | | |
 | F02 | `show vlan brief` + `show interfaces trunk` | result | 0 | | | | | |
 | F03 | R-CORE subinterfaces + `show ip interface brief` + `show ip route` | config/result | 0 | | | | | |
-| F04 | Stage 0 positive control: all 26 tests allowed (service methods) | result | 0 | | | | | |
+| F04 | Stage 0 positive control: the 17 selected test cases allowed (service methods) | result | 0 | | | | | |
 | F05 | Stage 1 broad policy: edge ACL, shared internal ACL and remote-login restriction (`show run` section) | config | 1 | | | | | |
 | F06 | Stage 1 excessive access (e.g. T08/T10 succeed) | result | 1 | | | | | |
 | F07 | Stage 1 external denied (T16) | result | 1 | | | | | |

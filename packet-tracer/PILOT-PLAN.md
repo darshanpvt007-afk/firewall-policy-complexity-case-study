@@ -4,7 +4,8 @@
 
 ## Ground rules
 
-- **Prerequisite:** Stage 0 is complete, and all 26 tests passed with no ACLs (`BUILD-GUIDE.md` Step 3).
+- **Prerequisite:** Stage 0 is complete, and the 17 selected test cases all passed with no ACLs (`BUILD-GUIDE.md` Step 3).
+- **Draft scope (team decision, 2026-10-08):** run **P3, P7 and P8** only. P1, P2, P4, P5, P6 and P9 are **not run** for this draft; their checks are kept below for later use.
 - Work on a **copy**: `topology/pilot.pkt`. Never turn it into a stage file.
 - Use only the temporary ACLs named `PILOT-*` below. **Remove each one** (unbind it, then `no ip access-list …`) before the next step, unless the step says otherwise.
 - After each step, fill in the Result line. Save evidence to `results/pilot/`. Copy the outcome into `planning/decisions-log.md`. A failure's fallback becomes a `[TEAM DECISION]`.
@@ -151,5 +152,5 @@ Background: `network-design/acl-design.md` §5.1. **Do not add any data-port ent
 
 ## Exit criterion (Gate G1)
 
-- P1–P9 are each PASS, or FAIL with the fallback recorded as a `[TEAM DECISION]` in `decisions-log.md`.
+- For this draft: P3, P7 and P8 are each PASS, or FAIL with the fallback recorded as a `[TEAM DECISION]` in `decisions-log.md`. (Full design: P1–P9.)
 - Any script change a fallback requires has been made **before** Stage 1 is built.
