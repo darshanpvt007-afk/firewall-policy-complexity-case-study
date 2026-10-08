@@ -24,7 +24,9 @@ DRAFT STATUS (not rendered; remove before submission)
 | **Faculty** | [PLACEHOLDER: faculty name] |
 | **Submission date** | [PLACEHOLDER: date] |
 
-**Status of this version.** Part A is a complete draft. Part B gives the full experimental design. **The Cisco Packet Tracer simulation has not yet been run.** Every expected outcome is labelled *planned*, and every observed-result field is blank. Part C is provisional until Part B results exist.
+**Status of this version.** Part A is a complete draft. Part B sets out our experimental design in full, but **we have not yet run the Cisco Packet Tracer simulation**. Every outcome in Part B is therefore a *planned* expectation, and every observed-result field is blank. Part C is provisional until we have results to compare with the literature.
+
+**Review notes for the team.** Notes in the form [TEAM CHECK: …] mark statements that need our own evidence or judgement before submission. Notes in the form [PLACEHOLDER: …] mark missing details. Both must be resolved or removed before we submit.
 
 **List of tables.**
 
@@ -40,7 +42,7 @@ DRAFT STATUS (not rendered; remove before submission)
 10. Screenshot plan
 11. Provisional alignment with the literature
 
-**List of figures.** All figures will be original screenshots from the team's own Packet Tracer simulation. **None has been captured yet.** The planned figures are listed in Table 10.
+**List of figures.** All figures will be screenshots taken from our own Packet Tracer simulation. **None has been captured yet.** Table 10 lists the planned figures.
 
 \newpage
 
@@ -50,118 +52,76 @@ DRAFT STATUS (not rendered; remove before submission)
 
 ### Abstract
 
-Firewalls and router access control lists (ACLs) remain the most common network access-control mechanism. The protection they give depends on the quality of the policy they enforce. This paper reviews research, standards and government guidance on firewall and ACL policy management under five themes:
+Router access control lists (ACLs) and firewalls are still the most widely used way to control which hosts may talk to which, yet they protect a network only as well as the policy written into them. This paper reviews research papers, standards and government guidance on firewall and ACL policy management under five themes: perimeter filtering, policy anomalies, policy growth and misconfiguration, least privilege with microsegmentation and Zero Trust, and policy-management approaches.
 
-- perimeter filtering
-- policy anomalies
-- policy growth and misconfiguration
-- least privilege, microsegmentation and Zero Trust
-- policy-management approaches
+Across these themes the sources agree that real rule sets are often misconfigured, that rule order hides conflicts, and that network location alone is a weak basis for trust. They part ways on whether finer-grained policy actually lowers risk, given that empirical work links rule-set complexity to errors, and on whether automated tooling removes that tension.
 
-The literature agrees on three points. Real rule sets are often misconfigured. Rule order creates conflicts that are hard to see. Trust based on network location alone is insufficient.
-
-It divides on two questions: whether finer-grained policy lowers risk or adds the complexity that empirical studies link to errors, and whether automated tooling resolves that tension.
-
-We identify three gaps: the empirical evidence rests on a few older datasets, tool usability is seldom evaluated, and peer-reviewed evaluations of microsegmentation are scarce. We argue that security gain and management cost should be measured together. A companion Packet Tracer case study is designed to do this on a small scale.
+We identify three gaps: the empirical evidence rests on a few older datasets, the usability of management tools is seldom evaluated, and peer-reviewed measurements of microsegmentation are scarce. We argue that the security gained and the management cost incurred by a policy should be measured together, and we design a small Packet Tracer case study to do so.
 
 **Keywords:** firewall policy, access control list, least privilege, policy anomalies, microsegmentation, Zero Trust.
 
 ### 1. Introduction
 
-A packet filter is only as good as its rules. Wool's analysis of real corporate rule sets [1] was the first quantitative study of firewall configuration quality. A larger follow-up [2] concluded that firewalls were still poorly configured, and that rule-set complexity correlated positively with the number of risk items found.
+A packet filter is only as good as its rules. Wool's analysis of real corporate rule sets [1] was the first quantitative study of firewall configuration quality. A larger follow-up [2] concluded that firewalls were still poorly configured, and that the more complex a rule set was, the more risk items it tended to contain.
 
-Standards guidance asks for a policy that blocks all traffic not expressly permitted, with the permitted traffic derived from a risk analysis of what the organisation needs [3]. Zero Trust guidance goes further and grants no implicit trust on the basis of network location [4]. This restates the older principle of least privilege [5].
+Standards guidance sets a demanding target: block all traffic that has not been expressly permitted, and derive the permitted traffic from a risk analysis of what the organisation actually needs [3]. Zero Trust guidance goes further, granting no implicit trust on the basis of network location [4]. Both restate the much older principle of least privilege [5].
 
-These positions create a practical tension. A broad policy is short and easy to write, but it allows more communication than is needed. A least-privilege policy has more rules, more conditions and more dependence on rule order, which are the properties [2] associates with errors.
+Put together, these positions create the tension this review examines. A broad policy is short and easy to write, but it allows far more communication than anyone needs. A least-privilege policy allows only what is needed, but it has more rules, more conditions and more dependence on rule order, which are exactly the properties that [2] associates with configuration errors. We ask how the literature treats this trade-off, and where its evidence is thin.
 
-This review asks how the literature characterises that trade-off.
+**Method.** We searched IEEE Xplore, the ACM Digital Library, Google Scholar, the IETF RFC series and the NIST and CISA publication catalogues, using terms such as *firewall policy anomaly*, *firewall configuration errors*, *ACL shadowing*, *least privilege*, *microsegmentation* and *zero trust architecture*. [PLACEHOLDER: search dates and hit counts from `research/search-log.md`.] We preferred peer-reviewed papers and original standards. Government guidance and one practitioner article are used only as supporting context, and are labelled as such in the reference list.
 
-**Method.** Sources were identified through IEEE Xplore, the ACM Digital Library, Google Scholar, the IETF RFC series and the NIST and CISA catalogues. Search terms included *firewall policy anomaly*, *firewall configuration errors*, *ACL shadowing*, *least privilege*, *microsegmentation* and *zero trust architecture*. [PLACEHOLDER: search dates and hit counts from `research/search-log.md`.] Peer-reviewed papers and original standards were preferred. Government guidance and one practitioner article are used as supporting context and identified as such.
-
-**Structure.** Section 2 presents the themes. Section 3 compares them and gives our interpretation. Section 4 concludes.
+Section 2 reviews the literature by theme, Section 3 compares the approaches and gives our interpretation, and Section 4 concludes.
 
 ### 2. Literature Review
 
 #### 2.1 Perimeter Filtering and the Trusted-Inside Assumption
 
-The classical firewall sits at the boundary between an organisation and the Internet. RFC 2979 [6] describes firewalls as packet filters, protocol relays or both. It notes that their behaviour was often under-specified, causing problems in practice.
+The classical firewall sits at the boundary between an organisation and the Internet. RFC 2979 [6] describes firewalls as packet filters, protocol relays or a mix of both, and notes that their behaviour was often under-specified, which caused problems in practice. NIST SP 800-41 Rev. 1 [3] gives the operational model that most later work assumes: write an explicit policy for both inbound and outbound traffic, allow only the IP protocols that are needed, block everything not expressly permitted, and keep the policy up to date. RFC 2827 [7] adds ingress filtering, which drops traffic whose source address does not belong to the network it arrives from. We use this source-validity check as the whole of our internal "broad" policy in Part B, because it is a realistic minimum that still leaves the inside of the network open.
 
-NIST SP 800-41 Rev. 1 [3] gives the operational model:
-
-- an explicit policy for inbound and outbound traffic
-- only the needed IP protocols allowed
-- everything not expressly permitted blocked
-- the policy kept up to date
-
-RFC 2827 [7] adds ingress filtering: drop traffic whose source address does not belong to the network it arrives from. This check is the basis of the "broad" baseline policy in Part B.
-
-- *Agreement:* a default-deny boundary is the minimum expected posture.
-- *Disagreement:* later work questions whether the boundary is the right place to decide trust. Ward and Beyer [8] describe an enterprise that abandoned the privileged internal network and granted access by user and device credentials.
-- *Gap:* the perimeter sources say little about traffic *between* internal segments, which is where this case study begins.
+These sources agree that a default-deny boundary is the minimum acceptable posture. Later work questions whether the boundary is the right place to decide trust at all: Ward and Beyer [8] describe an enterprise that abandoned its privileged internal network and granted access based on user and device credentials instead. The perimeter literature says little about traffic *between* internal segments, and that gap is where our case study begins.
 
 #### 2.2 Policy Anomalies: Ordering, Shadowing and Redundancy
 
-ACLs are evaluated first-match-wins, so a rule's meaning depends on every rule above it. Al-Shaer and Hamed [9] formalised the resulting anomalies. Al-Shaer *et al.* [10] extended them to distributed firewalls and automated their discovery in the *Firewall Policy Advisor*. This report uses four anomaly classes from that work:
+Because ACLs are evaluated first-match-wins, the meaning of any rule depends on every rule above it. Al-Shaer and Hamed [9] formalised the anomalies this produces, and Al-Shaer *et al.* [10] extended them to distributed firewalls and automated their discovery in the *Firewall Policy Advisor*. We use four of their anomaly classes:
 
 - **Shadowing:** an earlier rule with a different action matches every packet of a later rule, so the later rule never takes effect.
 - **Correlation:** rules with different actions partially overlap.
 - **Generalisation:** a later rule covers a superset of an earlier rule's packets with the opposite action.
-- **Redundancy:** a rule can be removed without changing the policy's effect.
+- **Redundancy:** a rule can be removed without changing what the policy does.
 
 [PLACEHOLDER: confirm these definitions against the full text of [9], [10]; secondary sources agree with them.]
 
-FIREMAN [11] instead uses static analysis. It models every packet and path with binary decision diagrams to flag violations and inconsistencies, and its authors report real misconfigurations found in enterprise networks. Gouda and Liu [12] prevent anomalies rather than detect them. Policies are written as firewall decision diagrams, which are conflict-free and complete by construction, then compiled into a compact rule list.
+Other authors attack the same problem from different directions. FIREMAN [11] applies static analysis, modelling every packet and path with binary decision diagrams to flag violations and inconsistencies; its authors report real misconfigurations found in enterprise networks. Gouda and Liu [12] aim to prevent anomalies rather than find them: policies are written as firewall decision diagrams, which are conflict-free and complete by construction, and then compiled into a compact rule list.
 
-- *Agreement:* order dependence is the root cause of anomalies.
-- *Disagreement:* [9]–[11] audit existing rules, whereas [12] intervenes at design time.
-- *Limitation:* all four rely mainly on formal analysis or tool case studies, not on how often administrators introduce anomalies.
-- *Link to Part B:* we count order-dependent rule pairs in each stage, and reproduce a shadowed rule deliberately (M1).
+The four works agree that order dependence is the root cause of anomalies, but they intervene at different times: [9]–[11] audit rules that already exist, while [12] works at design time. All of them rely mainly on formal analysis or tool case studies rather than on evidence of how often administrators actually introduce anomalies. In Part B we count order-dependent rule pairs in each policy stage, and we deliberately reproduce a shadowed rule (experiment M1).
 
 #### 2.3 Policy Growth, Misconfiguration and Excessive Permissions
 
-Wool's studies [1], [2] give the strongest empirical evidence. The second used a larger, two-vendor dataset. It introduced a composite *firewall complexity* measure, and found no significant sign that newer software versions had fewer errors [2]. The implication is that complexity, not raw rule count, is what is associated with risk.
+Wool's two studies [1], [2] are the strongest empirical evidence we found. The second used a larger dataset from two vendors, introduced a composite *firewall complexity* measure, and found no significant sign that newer software versions had fewer errors [2]. The implication is that complexity, not the raw number of rules, is what tracks risk. Voronkov *et al.* [13] reach a compatible conclusion from the usability literature: configuration is complicated and error-prone, it gets worse as networks grow, and the solutions proposed for it are rarely validated with real users.
 
-Voronkov *et al.* [13] reviewed the usability literature. They describe configuration as complicated and error-prone, and worse as networks grow. They found that proposed solutions are rarely validated with usability studies.
-
-- *Agreement:* misconfiguration is common, and complexity contributes to it.
-- *Gap:* the datasets in [1], [2] are old, and neither measures *excessive permission*, meaning access allowed but not required by the business.
-- *Link to Part B:* unnecessary access is defined against a requirements matrix written before any rule.
+The sources agree that misconfiguration is common and that complexity contributes to it. However, the datasets in [1] and [2] are now old, and neither measures *excessive permission*, meaning access the policy allows but the business does not need. This is why Part B defines unnecessary access against a requirements matrix that we wrote before writing any rule.
 
 #### 2.4 Least Privilege, Microsegmentation and Zero Trust
 
-Saltzer and Schroeder [5] state two principles that recur in this literature:
+Two of Saltzer and Schroeder's design principles [5] run through this whole literature: *least privilege*, under which every program and user operates with the smallest set of privileges it needs, and *fail-safe defaults*, under which access is decided by permission rather than by exclusion. NIST SP 800-207 [4] applies them to networks. It grants no implicit trust on the basis of location or asset ownership, authenticates and authorises subjects and devices before every session, and protects resources rather than network segments.
 
-- *least privilege:* every program and user should operate with the least set of privileges necessary
-- *fail-safe defaults:* access decisions should be based on permission, not exclusion
+Microsegmentation is one way of putting this into practice. Syed *et al.* [14] identify it as one building block of Zero Trust, alongside authentication, access control, encryption and automation. NIST SP 800-215 [15] argues that the enterprise perimeter has effectively disappeared and that broad internal connectivity lets attackers move laterally, and it presents microsegmentation, Zero Trust network access and software-defined perimeters as responses. CISA [16] likewise presents microsegmentation as a way to shrink the attack surface and limit lateral movement, while acknowledging that it is hard to implement.
 
-NIST SP 800-207 [4] applies these ideas to networks. It grants no implicit trust from location or asset ownership, authenticates and authorises subjects and devices before each session, and protects resources rather than network segments.
-
-Syed *et al.* [14] identify microsegmentation as one Zero Trust building block, alongside authentication, access control, encryption and automation. NIST SP 800-215 [15] notes that the enterprise perimeter has effectively vanished and that broad connectivity enables lateral movement. It presents microsegmentation, Zero Trust network access and software-defined perimeters as responses. CISA [16] presents microsegmentation as a way to reduce the attack surface and limit lateral movement, while acknowledging implementation challenges.
-
-- *Agreement:* location-based trust is insufficient, and segmentation limits lateral movement.
-- *Tension:* microsegmentation multiplies policy boundaries and rules, the property [2] links to errors. The guidance does not quantify that cost.
-- *Limitation:* most microsegmentation sources are guidance, not peer-reviewed measurement.
-- *Link to Part B:* router ACLs cannot provide identity-aware, continuously verified access [4]. Our Stage 3 is therefore a network-layer approximation of least privilege, not Zero Trust.
+These sources agree that location-based trust is not enough and that segmentation limits lateral movement. There is an unresolved tension, though: microsegmentation multiplies policy boundaries and rules, the very property [2] links to errors, and the guidance we found does not quantify that cost. Most of it is also guidance rather than peer-reviewed measurement. Router ACLs cannot provide identity-aware, continuously verified access [4], so the least-privilege stage in Part B is a network-layer approximation of these ideas, not an implementation of Zero Trust.
 
 #### 2.5 Policy-Management Approaches
 
-Three families of approach try to make fine-grained policy manageable:
+Three families of approach try to make fine-grained policy manageable. Firmato [17] works at *specification* time: it keeps policy and topology in one entity-relationship model and compiles that model into vendor configurations, and its prototype ran an operational firewall for several months. FIREMAN [11] and the Firewall Policy Advisor [10] work at *audit* time, checking existing policies for anomalies. Firewall decision diagrams [12] work at *design* time, producing rule sets that are consistent, complete and compact.
 
-- **Specification:** Firmato [17] keeps policy and topology in one entity-relationship model and compiles it into vendor configurations. Its prototype ran an operational firewall for several months.
-- **Audit:** FIREMAN [11] and the Firewall Policy Advisor [10] check existing policies for anomalies.
-- **Design:** firewall decision diagrams [12] yield consistent, complete and compact rule sets.
-
-How the three families compare:
-
-- *Agreement:* administrators should not hand-edit long ordered rule lists.
-- *Disagreement:* the approaches intervene at different points (specification, design or audit).
-- *Gap:* such proposals rarely include usability evaluation [13]. The claim that tooling removes the cost of least privilege is therefore largely untested with real administrators.
+All three share the premise that administrators should not hand-edit long, ordered rule lists; they differ in where they step in. What none of them has shown convincingly is that they reduce human error in practice. Voronkov *et al.* [13] found that such proposals rarely include usability evaluation, so the claim that tooling removes the cost of least privilege remains largely untested with real administrators.
 
 #### 2.6 Research Gaps Across Themes
 
+Four gaps recur across the themes:
+
 1. The empirical misconfiguration data are dated and come from few sources [1], [2].
 2. Excessive permission is rarely measured against stated requirements.
-3. Security gain and management cost are seldom measured together for the same policy as it is refined.
+3. Security gain and management cost are seldom measured together, on the same policy, as it is refined.
 4. The usability of management tools is under-evaluated [13].
 
 ### 3. Comparative Discussion and Analysis
@@ -176,31 +136,27 @@ How the three families compare:
 | Microsegmentation / Zero Trust | Per resource or session; identity-aware | Workload or session | Limits lateral movement; no location-based trust | Management cost; little peer-reviewed measurement | [4], [14]–[16] |
 | Policy-management tooling | Specification, design or audit | Any | Detects or prevents anomalies | Usability rarely evaluated | [10]–[13], [17] |
 
-**Is a broader policy easier to administer?** In the narrow sense, yes: it has fewer rules and fewer order dependencies. However, [3] asks that only needed traffic be allowed, which a broad internal policy does not achieve. Simplicity therefore trades against standards compliance.
+**Is a broader policy easier to administer?** In the narrow sense, yes: it has fewer rules and fewer order dependencies to reason about. But [3] asks that only needed traffic be allowed, and a broad internal policy does not achieve that. Simplicity is bought at the cost of standards compliance.
 
-**Does granularity reduce unnecessary access?** Logically yes, as [4], [5] and [16] argue. However, none of the empirical studies we found measures that reduction against a written list of required flows.
+**Does finer granularity reduce unnecessary access?** In principle it must, and [4], [5] and [16] argue for it on that basis. However, none of the empirical studies we found measures the reduction against a written list of required flows, which is the measurement Part B is designed to make.
 
-**Does rule count equal complexity?** The evidence says no. Wool's complexity measure goes beyond rule count [2]. The anomaly literature [9]–[12] shows that short policies can differ greatly in risk depending on rule order and overlap. Our inference is that **order dependence and the number of enforcement points** predict management difficulty better than rule count. Part B tests this on a small scale.
+**Is rule count a fair measure of complexity?** The evidence suggests not. Wool's complexity measure deliberately goes beyond counting rules [2], and the anomaly literature [9]–[12] shows that two short policies can differ greatly in risk depending on rule order and overlap. Our inference is that **order dependence and the number of enforcement points** are better guides to management difficulty than rule count. Part B tests this on a small scale. [TEAM CHECK: confirm that the team agrees with this inference before submission.]
 
-**Does tooling remove the trade-off?** The tools in [10]–[12], [17] reduce anomalies by construction or by detection. However, without usability studies [13] their effect on human error is asserted rather than shown. We treat tooling as a mitigation, not as proof that least privilege is free.
+**Does tooling remove the trade-off?** The tools in [10]–[12] and [17] reduce anomalies either by construction or by detection. Without usability studies [13], however, their effect on human error is asserted rather than demonstrated, so we treat tooling as a mitigation rather than as evidence that least privilege comes at no cost.
 
-**Does microsegmentation change the management model?** Yes. It moves enforcement next to each workload and, in Zero Trust form, ties decisions to identity [4], [14]. This removes the trusted-inside assumption but multiplies policy objects, a cost the sources we found do not quantify.
+**Does microsegmentation change the management model?** It does. It moves enforcement next to each workload and, in its Zero Trust form, ties access decisions to identity [4], [14]. That removes the trusted-inside assumption, but it multiplies the number of policy objects, a cost the sources we found do not quantify.
 
-**Our interpretation.** The literature supports a *conditional* position:
-
-- Least privilege reduces exposure, but its management cost is real. That cost grows with order dependence and enforcement points, and tooling only partly offsets it.
-- Plain ACLs remain adequate for small, stable networks with well-understood flows.
-- Plain ACLs are insufficient where identity, device state or continuous verification must drive decisions [4], [8].
+**Our interpretation.** Taken together, the literature supports a *conditional* position. Least privilege reduces exposure, but its management cost is real, it appears to grow with order dependence and the number of enforcement points, and tooling offsets it only in part. Plain ACLs remain a reasonable choice for small, stable networks whose required flows are well understood; they are not sufficient where identity, device state or continuous verification must drive access decisions [4], [8]. [TEAM CHECK: this is our judgement from the sources, not a measured finding; confirm the wording.]
 
 ### 4. Conclusion and Future Scope
 
-The literature agrees on three points: misconfiguration is common, rule order creates hidden conflicts, and network location is a weak basis for trust. It disagrees, often implicitly, on two questions: whether finer-grained policy lowers net risk once its complexity is counted, and how far automation changes that balance. The main gaps are dated empirical evidence, little measurement of unnecessary access against stated requirements, and little evaluation of tool usability.
+The sources we reviewed agree that misconfiguration is common, that rule order creates conflicts that are hard to see, and that network location is a weak basis for trust. They disagree, often implicitly, on whether finer-grained policy lowers net risk once its complexity is counted, and on how far automation changes that balance. The weakest points in the evidence are the age of the empirical datasets, the lack of measurements of unnecessary access against stated requirements, and the lack of usability evaluations of management tools.
 
-Future work should measure security gain and management cost together, on the same policy, as it is refined. Part B does this in a controlled Packet Tracer network. It compares broad, department-level and service-level policies using the same test cases and enforcement points. Studies with real administrators and real rule sets would be needed before generalising.
+Future work should measure security gain and management cost together, on the same policy, as it is refined. Part B of this report sets up exactly that comparison in a controlled Packet Tracer network, comparing broad, department-level and service-level policies over the same test cases and enforcement points. A study of this size cannot be generalised; work with real administrators and real rule sets would be needed for that.
 
 ### References (shared by Parts A, B and C)
 
-The references use IEEE style. Metadata for every entry was checked online on 2026-10-08 (Appendix B). DOIs or URLs are given only where an authoritative listing showed them. Full-text claim checks by the team are still pending.
+The references follow IEEE style. We checked the bibliographic details of every entry online on 2026-10-08 (Appendix B), and give DOIs or URLs only where an authoritative listing showed them. The team has not yet checked every claim against the full text.
 
 [1] A. Wool, "A quantitative study of firewall configuration errors," *Computer*, vol. 37, no. 6, pp. 62–67, Jun. 2004. [Online]. Available: https://ieeexplore.ieee.org/document/1306389
 
@@ -252,39 +208,33 @@ The references use IEEE style. Metadata for every entry was checked online on 20
 
 # PART B — Simulation-Based Case Study
 
-> **Status: design complete; simulation not yet run.** Every allowed or denied outcome below is a **planned expectation**, derived by tracing the rules by hand. Observed-result cells are blank and must be filled only from the team's own runs. **Draft scope:** 17 of the 26 designed test cases are run in every stage; the other nine are marked *not run*. [PLACEHOLDER: Packet Tracer version used by all members.]
+> **Status: design complete; simulation not yet run.** Every allowed or denied outcome in this part is a **planned expectation**, worked out by tracing packets through the rules by hand. Observed-result cells are blank and will be filled only from our own Packet Tracer runs. **Draft scope:** we run the same 17 of the 26 designed test cases in every stage; the other nine are marked *not run*. [PLACEHOLDER: Packet Tracer version used by all members.]
 
 ## B1. Experimental Objective and Research Question
 
 **Research question.** How does refining policy from broad, to department-level, to service-level least privilege change (a) the unnecessary flows the policy allows and (b) the policy's size, specificity and dependence on rule order, and how does this compare with the literature reviewed in Part A?
 
-**What is compared.** The experiment compares three **policy stages**. Each stage is a bundle of refinements (Table 5), not a change in granularity alone, so differences are attributed to the stage as a whole.
+**What we compare.** We compare three **policy stages**. Each stage changes several things at once (Table 5): the structure of the internal ACLs, their granularity, the edge filter and the rules for router management. We therefore attribute any difference to the stage as a whole, not to granularity alone.
 
-**Held constant across stages:**
+To keep the comparison fair, we hold the following constant in every stage: the topology, addressing, routing and server services; the required and forbidden flows; the seven points where filters are applied; and the same 17 test cases (of 26 designed), run with the same methods. Our conclusions are limited to those 17 test cases and to the traffic directions listed in B6.
 
-- topology, addressing, routing and server services
-- the required and forbidden flows
-- the seven enforcement points
-- the same 17 test cases (of 26 designed) and their methods
-
-Conclusions are limited to the 17 test cases run and to the traffic directions listed in B6.
-
-**Working expectations (to be tested, not assumed):**
+**Working expectations.** We expect the following, but we treat them as hypotheses to test, not as results:
 
 - **E1.** The number of forbidden test cases that are permitted falls from Stage 1 to Stage 3.
-- **E2.** ACL entries and match conditions rise from Stage 1 to Stage 3.
+- **E2.** The number of ACL entries and match conditions rises from Stage 1 to Stage 3.
 - **E3.** Rule count alone does not capture complexity.
-- **E4.** Some excess access remains because L3/L4 ACLs cannot express it.
+- **E4.** Some excess access remains in every stage, because L3/L4 ACLs cannot express it.
 
 ## B2. Network Architecture
 
-The network has 19 devices: four departments, a server zone and a simulated external network.
+We designed a 19-device network with four departments, a server zone and a small simulated "Internet". It is large enough for policy to grow in interesting ways, but small enough to build and test by hand.
 
-- **R-CORE** performs router-on-a-stick inter-VLAN routing and holds the internal ACLs.
-- **R-EDGE** holds the edge ACL.
-- External addresses use the RFC 5737 documentation range 203.0.113.0/24 [18].
+- **R-CORE** routes between the department VLANs (router-on-a-stick) and holds all internal ACLs. We chose a router rather than a multilayer switch because IOS routers in Packet Tracer support extended ACLs and VTY access control fully, and because putting every internal policy decision on one device makes the rules easy to count and audit. The price is a single point of failure, which we accept as a simplification.
+- **R-EDGE** connects the external network and holds the edge ACL. Without it we could not show perimeter filtering, which is where the topic starts.
+- **External addresses** use the RFC 5737 documentation range 203.0.113.0/24 [18], so the simulated Internet does not use real public addresses.
+- **Two PCs per department** let us test traffic inside a VLAN, which never reaches the router and so cannot be filtered by a router ACL.
 
-Routing is static and there is no NAT; this simplification is discussed in Part C.
+Routing is static and there is no NAT, which keeps external tests readable; Part C discusses what this leaves out.
 
 **Table 2. Device inventory**
 
@@ -309,13 +259,13 @@ Routing is static and there is no NAT; this simplification is discussed in Part 
 | Transit | 10.0.0.0/30 | — | R-CORE .1, R-EDGE .2 |
 | External | 203.0.113.0/24 | 203.0.113.1 (R-EDGE G0/1) | EXT-WEB .10, EXT-HOST .50 |
 
-All internal subnets fall inside 192.168.0.0/16, so one ACL entry can match "any internal destination". This shows how address planning affects rule count.
+All internal subnets fall inside 192.168.0.0/16, so a single ACL entry can match "any internal destination". The address plan therefore directly affects how many rules the policy needs.
 
 [PLACEHOLDER: Figure F01, topology screenshot.]
 
 ## B3. Communication Requirements
 
-The requirements were written before any ACL. Every Stage 2 and Stage 3 rule traces back to one of them.
+We wrote down which flows the organisation needs, and which it must not have, before writing any ACL. Every Stage 2 and Stage 3 rule traces back to one of the requirements in Table 4, and "unnecessary access" in our results means a flow in the forbidden (X) rows that the policy nevertheless allows.
 
 **Table 4. Required (R) and forbidden (X) flows**
 
@@ -338,46 +288,31 @@ The requirements were written before any ACL. Every Stage 2 and Stage 3 rule tra
 | X7 | External → anything except R8 | Any | Forbidden |
 | U1 | PC ↔ PC in the same VLAN | Any | Not filterable by a router ACL (Layer 2 only) |
 
+Packet Tracer servers do not offer a database service, so we represent the finance records system with FTP (R4). Part C discusses what this substitution leaves out.
+
 ## B4. Network Configuration and Stage 0 Baseline
 
-**Configuration.** Stage 0 configures, with **no ACLs**:
+**Configuration.** Stage 0 builds the working network with **no ACLs**: VLANs and 802.1Q trunks, the R-CORE subinterfaces, static routes (a default route on R-CORE and a 192.168.0.0/16 route on R-EDGE), only the intended server services, the DNS records, and SSH on both routers. The configuration scripts are in our project repository (Appendix A).
 
-- VLANs and 802.1Q trunks
-- R-CORE subinterfaces
-- static routes (a default route on R-CORE; 192.168.0.0/16 on R-EDGE)
-- the intended server services only
-- DNS records
-- SSH on both routers
+**Why a baseline.** Stage 0 is a positive control. Every one of the 17 test cases, including the forbidden ones, must succeed before any ACL is applied. If a test later fails, we can then attribute the failure to the policy rather than to a routing or service fault.
 
-The configuration scripts are in the project repository (Appendix A).
+**Pilot.** Before Stage 1, a pilot checks the Packet Tracer behaviours our design relies on. The full plan has nine steps (P1–P9). For this draft we run the three that the stage tests cannot cover on their own: **P3** (whether `show access-lists` match counters work, which we need as evidence of denials), **P7** (whether FTP works through a rule that allows only port 21) and **P8** (whether SSH and VTY `access-class` behave as expected, including on alternate router addresses). The other six are not run for this draft.
 
-**Baseline.** Stage 0 is a positive control. All 17 test cases run must succeed with no ACLs, including the forbidden flows. A later denial can then only come from an ACL, not from a fault.
-
-**Pilot.** Before Stage 1, a nine-step pilot (P1–P9) checks the Packet Tracer behaviours the design relies on:
-
-1. DNS
-2. HTTPS
-3. ACL counters
-4. Simulation Mode drop evidence
-5. Sequence-number editing
-6. The `established` keyword
-7. FTP through a port-21-only ACL
-8. SSH with VTY `access-class` on alternate router addresses
-9. Telnet removal
-
-[PLACEHOLDER: Stage 0 results (Table 7, column Obs. S0) and pilot outcomes P1–P9, from `planning/decisions-log.md`.]
+[PLACEHOLDER: Stage 0 results (Table 7, column Obs. S0) and the outcomes of pilot steps P3, P7 and P8, from `planning/decisions-log.md`.]
 
 [PLACEHOLDER: Figures F02–F04, VLAN, trunk and route outputs and the Stage 0 baseline.]
 
 ## B5. Policy Stages
 
-The seven enforcement points are identical in every stage:
+All three stages apply filters at the same seven points:
 
 | Point | Location |
 |----------|--------------------------------------------------|
 | AP1 | R-EDGE G0/1 inbound |
 | AP2–AP5 | R-CORE G0/0.10, .20, .30 and .40 inbound |
 | AP6, AP7 | VTY `access-class` on R-CORE and R-EDGE |
+
+Only the contents of the filters change. Table 5 shows what changes at each stage.
 
 **Table 5. What changes between policy stages**
 
@@ -411,17 +346,17 @@ ip access-list extended ACL-HR-IN
 | Edge-ACL entries | 7 | 7 | 5 |
 | Order-dependent entry pairs | 0 | 9 | 24 |
 
-**FTP data channel (pending pilot P7).** Stage 3 is expected to permit TCP 21 for Finance → FIN-SRV (the required test T04). The Finance ACL only sees packets sent by Finance hosts. In active-mode FTP, the client's data-connection replies go to server port 20. In passive mode, the client connects to a high server port. Under real IOS behaviour, the Stage 3 "deny internal" entry would block both. No data-port rule has been added in advance. If pilot P7 shows one is needed, the team will choose between one minimal entry and switching the finance service to HTTPS, and record that decision. The forbidden FTP tests (T08, T09, T16) depend only on the control connection being refused, so they are unaffected.
+**FTP data channel (pending pilot P7).** The Stage 3 Finance ACL is expected to permit TCP port 21 from Finance to FIN-SRV, which the required test T04 depends on. That ACL only sees packets sent *by* Finance hosts. In active-mode FTP, the client's replies on the separate data connection go to server port 20; in passive mode, the client opens the data connection to a high server port. Under real IOS behaviour, the Stage 3 "deny internal" entry would block both. We have deliberately not added a data-port rule in advance. If pilot P7 shows that one is needed, the team will choose between adding one minimal entry and moving the finance service to HTTPS, and will record that decision. The forbidden FTP tests (T08, T09 and T16) depend only on the control connection being refused, so the data-channel question does not affect them.
 
 ## B6. Test Method
 
-**Test set.** The design has 26 test cases: 12 required, 13 forbidden and one same-VLAN control (T18). For this draft the team runs the same **17** in Stage 0 and in every stage, in the same order, from the same PCs, after `clear access-list counters`:
+**Test set.** We designed 26 test cases: 12 required, 13 forbidden and one same-VLAN control (T18). To fit the time available for this draft, the team agreed to run the same **17** in Stage 0 and in every stage, in the same order, from the same PCs, after clearing the ACL counters:
 
 - required (8): T01, T03, T04, T05, T06, T14, T15, T17
 - forbidden (8): T07, T08, T10, T11, T12, T13, T16, T19
 - control (1): T18
 
-Together these cover every required (R1–R8) and forbidden (X1–X7) flow. The other nine (T02, T09, T20–T26) are **not run**. The Sales exposure metric, which needs them, is therefore not measured. No conclusion is drawn about these nine test cases.
+These 17 cover every forbidden flow (X1–X7) and every required flow, with one partial exception: R5 (IT SSH to both routers) is tested only towards R-CORE (T06), because the R-EDGE test (T22) is not run. The other nine test cases (T02, T09, T20–T26) are **not run**, so we do not measure the Sales exposure metric, which depends on them, and we draw no conclusion about them.
 
 | Service | How it is tested |
 |--------------------|------------------------------------------------|
@@ -431,12 +366,9 @@ Together these cover every required (R1–R8) and forbidden (X1–X7) flow. The 
 | SSH/Telnet | Client; *allowed* means the login prompt appears |
 | ICMP | `ping`, used only for ICMP requirements |
 
-**Evidence for a denial.** A denial counts only with the client-side failure **plus** either a rising deny-entry counter or Simulation Mode showing the drop.
+**Evidence for a denial.** We count a test as denied only when the client-side failure is accompanied by either a rising counter on the deny entry or Simulation Mode showing where the packet was dropped.
 
-**Directions.**
-
-- Tested: user VLANs → servers, other VLANs, routers and outside; external → internal; any → router management.
-- Not tested: server-initiated traffic (also not filtered) and inter-server traffic.
+**Directions.** We test traffic from the user VLANs to servers, other VLANs, routers and the outside; from the outside to the inside; and towards router management. We do not test traffic that servers initiate (which our design also does not filter), or traffic between servers.
 
 Planned outcomes in Table 7 use these codes:
 
@@ -484,7 +416,7 @@ Stage 0 is planned as A for every test case. Observed cells for the 17 test case
 
 ## B7. Controlled Misconfiguration Experiments
 
-These experiments run on **copies** of stage files. Their results are reported separately and never mixed into the stage metrics.
+These experiments recreate two of the problems described in Part A on **copies** of the stage files. We report their results separately and never mix them into the stage metrics. [TEAM CHECK: decide whether M1 and M2 will be run for this draft; if not, mark their Observed cells "not run".]
 
 **Table 8. Misconfiguration experiments**
 
@@ -496,8 +428,6 @@ These experiments run on **copies** of stage files. Their results are reported s
 
 ## B8. Metrics and Comparative Analysis
 
-**Table 9. Metrics: planned and measured values** (measured columns are blank until the simulation is run; values must come only from saved configurations and test runs)
-
 | Metric | Definition | Planned S1 / S2 / S3 | Meas. S1 | Meas. S2 | Meas. S3 |
 |----------|------------------|--------|-----|-----|-----|
 | Explicit ACL entries | Permit/deny lines in `show access-lists` | 11 / 26 / 40 | | | |
@@ -508,13 +438,13 @@ These experiments run on **copies** of stage files. Their results are reported s
 | Zero-match entries | Counter is 0 after the run (relative to the 17 test cases run only) | — | | | |
 | Configuration lines changed | Diff against the previous stage | — | | | |
 
-[PLACEHOLDER: comparison chart (Figure F19) from the measured columns only.]
+[PLACEHOLDER: comparison chart (Figure F19), drawn from the measured columns only.]
 
 [PLACEHOLDER: discussion of results, to be written after measurement. Assess E1–E4 as supported, partly supported or not supported, using only observed data.]
 
 ## B9. Evidence Plan
 
-**Table 10. Screenshot plan.** Every screenshot must come from the team's own `.pkt` files. None has been captured yet.
+**Table 10. Screenshot plan.** Every screenshot will come from our own `.pkt` files. None has been captured yet.
 
 | Fig. | Content | Stage |
 |------|------------------------------------------------------------|------|
@@ -536,14 +466,9 @@ These experiments run on **copies** of stage files. Their results are reported s
 
 # PART C — Alignment and Limitations Note (provisional)
 
-*This note is provisional: no Packet Tracer results exist yet. It separates what the literature supports, what the experiment is planned to show, and known design limitations. It will be rewritten from measured results.*
+*This note is provisional because we have no Packet Tracer results yet. It separates what the literature supports, what the experiment is planned to show, and the known limits of our design. We will rewrite it from measured results.*
 
-**C.1 Comparison with the literature (planned, not observed).** The experiment tests four positions from Part A:
-
-- traffic should be denied by default and permitted only where needed [3], [5]
-- rule order is the source of anomalies [9]–[11]
-- complexity is associated with configuration risk [2]
-- location-based trust is insufficient [4]
+**C.1 Comparison with the literature (planned, not observed).** The experiment is designed to test four positions from Part A: that traffic should be denied by default and permitted only where needed [3], [5]; that rule order is the source of anomalies [9]–[11]; that complexity is associated with configuration risk [2]; and that location-based trust is insufficient [4]. Table 11 shows how each planned observation would relate to the literature *if* it is borne out.
 
 **Table 11. Provisional alignment**
 
@@ -557,20 +482,9 @@ These experiments run on **copies** of stage files. Their results are reported s
 
 [PLACEHOLDER: replace "would agree" with *agrees*, *differs* or *partly agrees*, with reasons, once measured.]
 
-**C.2 What the simulation cannot capture.**
+**C.2 What the simulation cannot capture.** Our network has 19 devices and a few dozen rules, while the rule sets studied in [1] and [2] were large and came from several vendors. The simulation leaves out the people and processes that cause policies to drift over time [13]. ACLs decide only on addresses and ports, never on user or device identity [4], [8], [14], so our Stage 3 is not Zero Trust. The `established` keyword is stateless and accepts any TCP segment with the ACK flag set, unlike a stateful firewall. There is no real attack traffic, logging or monitoring, and protocol behaviour follows Packet Tracer's models; how FTP behaves is still pending pilot P7.
 
-- **Scale:** 19 devices and tens of rules, compared with the large multi-vendor rule sets in [1], [2].
-- **People and process:** administrators, change management and policy drift over time [13].
-- **Identity and continuous verification:** ACLs decide on addresses and ports only, never on user or device identity [4], [8], [14]. Stage 3 is therefore not Zero Trust.
-- **State:** `established` is stateless and accepts any TCP segment with ACK set, unlike a stateful firewall.
-- **Realism:** there is no real attack traffic, logging or monitoring, and protocol behaviour follows Packet Tracer's models. FTP behaviour is pending pilot P7.
-
-**C.3 Simplifications.**
-
-- **Finance service:** FTP replaces a database, which Packet Tracer lacks.
-- **Network design:** there is no NAT or DMZ; routing is static; there is one core router with no redundancy.
-- **Traffic not filtered:** server-initiated traffic is neither filtered nor tested.
-- **Test scope:** only 17 of 26 designed test cases are run; the Sales exposure metric is not measured, and zero-match counts reflect only the tests run.
+**C.3 Simplifications.** We use FTP in place of a database, which Packet Tracer lacks. There is no NAT or DMZ, routing is static, and a single core router has no redundancy. Server-initiated traffic is neither filtered nor tested. Finally, we run only 17 of the 26 designed test cases, so the Sales exposure metric is not measured and zero-match counts reflect only the tests we ran.
 
 \newpage
 
@@ -588,7 +502,7 @@ These experiments run on **copies** of stage files. Their results are reported s
 
 # Appendix A — Configuration Sources
 
-The configuration scripts are in the project repository. **They have not yet been tested in Packet Tracer.**
+Our configuration scripts are in the project repository. **We have not yet tested them in Packet Tracer.**
 
 | Repository path | Contents |
 |----------------------------------|--------------------------------------------|
@@ -603,9 +517,9 @@ The configuration scripts are in the project repository. **They have not yet bee
 
 # Appendix B — Reference Verification Record
 
-**What was checked.** On 2026-10-08, the bibliographic details below were checked against listings from the publisher, IETF, NIST, CISA, USENIX, the authors' pages or institutional repositories. Crossref and dblp could not be reached from the drafting environment.
+**What was checked.** On 2026-10-08 we checked the bibliographic details below against listings from the publisher, IETF, NIST, CISA, USENIX, the authors' own pages or institutional repositories. Crossref and dblp could not be reached from the drafting environment.
 
-**Still to do.** For each reference, the member who cites it must open the full text, confirm the claim attributed to it, tick the last column and add their name.
+**Still to do.** For each reference, the member who cites it must read the full text, confirm the claim we attribute to it, tick the last column and add their name.
 
 | Ref. | What was confirmed online | Claim in this draft that relies on it | Full text read (by whom) |
 |----|----------------------|----------------------|------------------|

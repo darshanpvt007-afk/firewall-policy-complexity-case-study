@@ -189,6 +189,17 @@ def edit_document(d):
     d = re.sub(r"<w:p(?: [^>]*)?>(?:(?!<w:p[ >]).)*?</w:p>(?=\s*<w:tbl>)", lambda m: keep_next(m.group(0)), d, flags=re.S)
     d = re.sub(r"<w:p(?: [^>]*)?>(?:(?!<w:p[ >]).)*?</w:p>", fix_para, d, flags=re.S)
 
+    # Code blocks: keep each block on one page, together with the paragraph that introduces it.
+    paras = list(re.finditer(r"<w:p(?: [^>]*)?>(?:(?!<w:p[ >]).)*?</w:p>", d, re.S))
+    edits = []
+    for prev, cur in zip(paras, paras[1:]):
+        if 'w:val="SourceCode"' in cur.group(0):
+            edits.append((cur.start(), cur.end(), set_ppr(cur.group(0), "keepLines", "<w:keepLines/>")))
+            if 'w:val="SourceCode"' not in prev.group(0):
+                edits.append((prev.start(), prev.end(), set_ppr(prev.group(0), "keepNext", "<w:keepNext/>")))
+    for st, en, new in sorted(edits, reverse=True):
+        d = d[:st] + new + d[en:]
+
     # Space after tables: first paragraph following a table gets spacing before.
     d = re.sub(r"(</w:tbl>\s*)(<w:p(?: [^>]*)?>(?:(?!<w:p[ >]).)*?</w:p>)",
                lambda m: m.group(1) + set_ppr(m.group(2), "spacing", '<w:spacing w:before="160"/>'), d, flags=re.S)
