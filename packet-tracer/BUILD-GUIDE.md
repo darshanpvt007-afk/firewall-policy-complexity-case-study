@@ -4,6 +4,8 @@
 
 Follow the steps in order. Do not start a step until the previous step's checks pass.
 
+> **Draft scope (team decision, 2026-10-08):** for this draft, run the **17-test subset** listed in `tests/test-matrix.md` §1 wherever this guide says "all 26". Run pilot steps P3, P7 and P8 only. Mark everything else "not run".
+
 ## Step 1 — Place and cable the devices
 
 - Use the device models and names in `network-design/addressing-plan.md` §2.

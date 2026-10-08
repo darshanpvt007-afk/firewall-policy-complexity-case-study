@@ -19,7 +19,7 @@ Rules:
 | F04 | Stage 0 positive control: all 26 tests allowed (service methods) | result | 0 | | | | | |
 | F05 | Stage 1 broad policy: edge ACL, shared internal ACL and remote-login restriction (`show run` section) | config | 1 | | | | | |
 | F06 | Stage 1 excessive access (e.g. T08/T10 succeed) | result | 1 | | | | | |
-| F07 | Stage 1 external denied (T16, T21) | result | 1 | | | | | |
+| F07 | Stage 1 external denied (T16) | result | 1 | | | | | |
 | F08 | Stage 2 department ACLs + access-class | config | 2 | | | | | |
 | F09 | Stage 2 inter-department denied (T07) | result | 2 | | | | | |
 | F10 | Stage 2 residual access (T08) | result | 2 | | | | | |

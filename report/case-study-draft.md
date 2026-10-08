@@ -252,7 +252,7 @@ The references use IEEE style. Metadata for every entry was checked online on 20
 
 # PART B — Simulation-Based Case Study
 
-> **Status: design complete; simulation not yet run.** Every allowed or denied outcome below is a **planned expectation**, derived by tracing the rules by hand. Observed-result cells are blank and must be filled only from the team's own runs. [PLACEHOLDER: Packet Tracer version used by all members.]
+> **Status: design complete; simulation not yet run.** Every allowed or denied outcome below is a **planned expectation**, derived by tracing the rules by hand. Observed-result cells are blank and must be filled only from the team's own runs. **Draft scope:** 17 of the 26 designed test cases are run in every stage; the other nine are marked *not run*. [PLACEHOLDER: Packet Tracer version used by all members.]
 
 ## B1. Experimental Objective and Research Question
 
@@ -265,9 +265,9 @@ The references use IEEE style. Metadata for every entry was checked online on 20
 - topology, addressing, routing and server services
 - the required and forbidden flows
 - the seven enforcement points
-- the 26 test cases and their methods
+- the same 17 test cases (of 26 designed) and their methods
 
-Conclusions are limited to the 26 test cases and to the traffic directions listed in B6.
+Conclusions are limited to the 17 test cases run and to the traffic directions listed in B6.
 
 **Working expectations (to be tested, not assumed):**
 
@@ -351,7 +351,7 @@ The requirements were written before any ACL. Every Stage 2 and Stage 3 rule tra
 
 The configuration scripts are in the project repository (Appendix A).
 
-**Baseline.** Stage 0 is a positive control. All 26 test cases must succeed with no ACLs, including the forbidden flows. A later denial can then only come from an ACL, not from a fault.
+**Baseline.** Stage 0 is a positive control. All 17 test cases run must succeed with no ACLs, including the forbidden flows. A later denial can then only come from an ACL, not from a fault.
 
 **Pilot.** Before Stage 1, a nine-step pilot (P1–P9) checks the Packet Tracer behaviours the design relies on:
 
@@ -415,7 +415,13 @@ ip access-list extended ACL-HR-IN
 
 ## B6. Test Method
 
-**Test set.** There are 26 test cases: 12 required, 13 forbidden, and one same-VLAN control (T18). They are run in Stage 0 and in every stage, in the same order, from the same PCs, after `clear access-list counters`.
+**Test set.** The design has 26 test cases: 12 required, 13 forbidden and one same-VLAN control (T18). For this draft the team runs the same **17** in Stage 0 and in every stage, in the same order, from the same PCs, after `clear access-list counters`:
+
+- required (8): T01, T03, T04, T05, T06, T14, T15, T17
+- forbidden (8): T07, T08, T10, T11, T12, T13, T16, T19
+- control (1): T18
+
+Together these cover every required (R1–R8) and forbidden (X1–X7) flow. The other nine (T02, T09, T20–T26) are **not run**. The Sales exposure metric, which needs them, is therefore not measured. No conclusion is drawn about these nine test cases.
 
 | Service | How it is tested |
 |--------------------|------------------------------------------------|
@@ -441,22 +447,23 @@ Planned outcomes in Table 7 use these codes:
 | A\* | allowed although forbidden |
 | A† | allowed, but not filterable by a router ACL |
 | (P7) | depends on pilot step P7 |
+| not run | outside the 17-test draft scope; no result |
 
-Stage 0 is planned as A for all 26 test cases. **The four Observed columns are blank because Packet Tracer has not been run.**
+Stage 0 is planned as A for every test case. Observed cells for the 17 test cases run are blank until Packet Tracer has been run; the nine test cases outside the draft scope are marked *not run*.
 
 **Table 7. Test cases: planned outcomes and observed results**
 
 | Test | Flow | Method | Req. | Plan S1 | Plan S2 | Plan S3 | Obs. S0 | Obs. S1 | Obs. S2 | Obs. S3 |
 |------|--------------------|---------|----|-----|-----|------|----|----|----|----|
 | T01 | HR-PC1 → WEB-SRV | HTTP | R2 | A | A | A | | | | |
-| T02 | SAL-PC1 → WEB-SRV | HTTPS | R2 | A | A | A | | | | |
+| T02 | SAL-PC1 → WEB-SRV | HTTPS | R2 | A | A | A | not run | not run | not run | not run |
 | T03 | HR-PC1 → DNS-SRV | nslookup | R1 | A | A | A | | | | |
 | T04 | FIN-PC1 → FIN-SRV | FTP login + dir + get | R4 | A | A | A (P7) | | | | |
 | T05 | HR-PC1 → HR-SRV | HTTPS | R3 | A | A | A | | | | |
 | T06 | IT-PC1 → R-CORE 192.168.30.1 | SSH | R5 | A | A | A | | | | |
 | T07 | HR-PC1 → FIN-PC1 | ping | X1 | A\* | D | D | | | | |
 | T08 | SAL-PC1 → FIN-SRV | FTP | X3 | A\* | A\* | D | | | | |
-| T09 | HR-PC1 → FIN-SRV | FTP | X3 | A\* | A\* | D | | | | |
+| T09 | HR-PC1 → FIN-SRV | FTP | X3 | A\* | A\* | D | not run | not run | not run | not run |
 | T10 | SAL-PC1 → HR-SRV | HTTPS | X2 | A\* | A\* | D | | | | |
 | T11 | SAL-PC1 → R-CORE 192.168.40.1 | SSH | X4 | A\* | D | D | | | | |
 | T12 | IT-PC1 → R-CORE 192.168.30.1 | Telnet | X5 | A\* | A\* | D | | | | |
@@ -467,13 +474,13 @@ Stage 0 is planned as A for all 26 test cases. **The four Observed columns are b
 | T17 | HR-PC1 → EXT-WEB | HTTP | R7 | A | A | A | | | | |
 | T18 | HR-PC1 → HR-PC2 | ping (same VLAN) | U1 | A† | A† | A† | | | | |
 | T19 | SAL-PC1 → R-CORE 192.168.50.1 | SSH | X4 | A\* | D | D | | | | |
-| T20 | SAL-PC1 → R-EDGE 10.0.0.2 | SSH | X4 | A\* | D | D | | | | |
-| T21 | EXT-HOST → HR-PC1 | ping | X7 | D | D | D | | | | |
-| T22 | IT-PC1 → R-EDGE 10.0.0.2 | SSH | R5 | A | A | A | | | | |
-| T23 | SAL-PC1 → WEB-SRV | HTTP | R2 | A | A | A | | | | |
-| T24 | SAL-PC1 → DNS-SRV | nslookup | R1 | A | A | A | | | | |
-| T25 | SAL-PC1 → R-CORE 192.168.40.1 | Telnet | X4, X5 | A\* | D | D | | | | |
-| T26 | SAL-PC1 → R-EDGE 10.0.0.2 | Telnet | X4, X5 | A\* | D | D | | | | |
+| T20 | SAL-PC1 → R-EDGE 10.0.0.2 | SSH | X4 | A\* | D | D | not run | not run | not run | not run |
+| T21 | EXT-HOST → HR-PC1 | ping | X7 | D | D | D | not run | not run | not run | not run |
+| T22 | IT-PC1 → R-EDGE 10.0.0.2 | SSH | R5 | A | A | A | not run | not run | not run | not run |
+| T23 | SAL-PC1 → WEB-SRV | HTTP | R2 | A | A | A | not run | not run | not run | not run |
+| T24 | SAL-PC1 → DNS-SRV | nslookup | R1 | A | A | A | not run | not run | not run | not run |
+| T25 | SAL-PC1 → R-CORE 192.168.40.1 | Telnet | X4, X5 | A\* | D | D | not run | not run | not run | not run |
+| T26 | SAL-PC1 → R-EDGE 10.0.0.2 | Telnet | X4, X5 | A\* | D | D | not run | not run | not run | not run |
 
 ## B7. Controlled Misconfiguration Experiments
 
@@ -495,10 +502,10 @@ These experiments run on **copies** of stage files. Their results are reported s
 |----------|------------------|--------|-----|-----|-----|
 | Explicit ACL entries | Permit/deny lines in `show access-lists` | 11 / 26 / 40 | | | |
 | Order-dependent entry pairs | Same ACL, opposite actions, overlapping matches; the terminal deny is excluded | 0 / 9 / 24 | | | |
-| Required test cases passed (of 12) | From Table 7 | 12 / 12 / 12 | | | |
-| Forbidden test cases permitted (of 13) | From Table 7 | 11 / 5 / 0 | | | |
-| Sales exposed services (of 9) / unnecessary | Internal services only; router services counted only on the addresses tested from SAL-PC1; Internet browsing excluded | 9/6, 5/2, 3/0 | | | |
-| Zero-match entries | Counter is 0 after the full run (relative to the 26 test cases) | — | | | |
+| Required test cases passed (of 8 run) | From Table 7 | 8 / 8 / 8 | | | |
+| Forbidden test cases permitted (of 8 run) | From Table 7 | 7 / 4 / 0 | | | |
+| Sales exposed services | Needs the full Sales sweep (T02, T20, T23–T26), which is not run in this draft | — | not measured | not measured | not measured |
+| Zero-match entries | Counter is 0 after the run (relative to the 17 test cases run only) | — | | | |
 | Configuration lines changed | Diff against the previous stage | — | | | |
 
 [PLACEHOLDER: comparison chart (Figure F19) from the measured columns only.]
@@ -514,9 +521,9 @@ These experiments run on **copies** of stage files. Their results are reported s
 | F01 | Final topology | 0 |
 | F02 | `show vlan brief`, `show interfaces trunk` | 0 |
 | F03 | Subinterfaces, `show ip interface brief`, `show ip route` | 0 |
-| F04 | Stage 0 baseline: all 26 test cases | 0 |
+| F04 | Stage 0 baseline: the 17 test cases run | 0 |
 | F05 | Stage 1 broad policy: edge ACL, shared internal ACL and remote-login restriction | 1 |
-| F06–F07 | Stage 1 excess access (e.g. T08, T10); external denied (T16, T21) | 1 |
+| F06–F07 | Stage 1 excess access (e.g. T08, T10); external denied (T16) | 1 |
 | F08–F10 | Stage 2 ACLs and access-class; inter-department denied (T07); residual access (T08) | 2 |
 | F11–F14 | Stage 3 ACLs; required services permitted; unnecessary access denied; `show access-lists` counters | 3 |
 | F15 | Simulation Mode: packet dropped at R-CORE | 3 |
@@ -542,7 +549,7 @@ These experiments run on **copies** of stage files. Their results are reported s
 
 | Planned observation (not yet measured) | Literature | Expected relation |
 |------------------------------|----------|------------------------------|
-| Forbidden test cases permitted: 11 → 5 → 0 | [3], [5] | Would agree |
+| Forbidden test cases permitted (of 8 run): 7 → 4 → 0 | [3], [5] | Would agree |
 | ACL entries 11 → 26 → 40; order-dependent pairs 0 → 9 → 24 | [2] | Would agree |
 | Edge ACL shrinks (7 → 5) while becoming stricter | [2], [9] | Would partly agree (rule count can mislead) |
 | M1 deny shows 0 matches | [9], [10] | Would agree, if counters work in Packet Tracer (P3) |
@@ -563,7 +570,7 @@ These experiments run on **copies** of stage files. Their results are reported s
 - **Finance service:** FTP replaces a database, which Packet Tracer lacks.
 - **Network design:** there is no NAT or DMZ; routing is static; there is one core router with no redundancy.
 - **Traffic not filtered:** server-initiated traffic is neither filtered nor tested.
-- **Exposure metric scope:** Sales only, internal services only, and only the router addresses tested.
+- **Test scope:** only 17 of 26 designed test cases are run; the Sales exposure metric is not measured, and zero-match counts reflect only the tests run.
 
 \newpage
 

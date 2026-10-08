@@ -39,7 +39,21 @@ Record the exact client message for denials: pilot steps P2, P3, P7 and P8 tell 
 
 **Sales sweep for exposure:** T02, T08, T10, T11, T19, T20, T23, T24, T25, T26 (see `acl-design.md` §6.1). It covers internal services only, on the router addresses listed in those tests; Internet browsing is not part of it.
 
-**Scope:** conclusions are limited to these 26 test cases (`acl-design.md` §1.3).
+**Scope:** conclusions are limited to the test cases actually run (`acl-design.md` §1.3).
+
+**Run subset for this draft (`[TEAM DECISION]`, see `planning/decisions-log.md`).** The full 26 test cases remain the designed test set. For this draft, the same 17 test cases are run in Stage 0 and in Stages 1–3:
+
+| Group | Test cases run |
+|---|---|
+| Required (8) | T01, T03, T04, T05, T06, T14, T15, T17 |
+| Forbidden (8) | T07, T08, T10, T11, T12, T13, T16, T19 |
+| Control (1) | T18 |
+
+The other nine test cases (T02, T09, T20–T26) are marked **not run** in every stage. Consequences:
+
+- The **Sales exposure metric is not measured** in this draft. It needs the full Sales sweep, which is not run.
+- **Zero-match entries** are reported only relative to the 17 test cases run.
+- No conclusion is drawn about the nine test cases that were not run.
 
 ## 2. Test definitions
 
@@ -81,14 +95,14 @@ If any Stage 0 test fails, fix the network **before** running the pilot or any s
 | Exp ID | Source | Destination | Service | Expected | Actual | Evidence | Notes |
 |---|---|---|---|---|---|---|---|
 | S0-T01 | HR-PC1 | WEB-SRV 192.168.50.10 | HTTP | A | | | |
-| S0-T02 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | A | | | |
+| S0-T02 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | A | not run | | |
 | S0-T03 | HR-PC1 | DNS-SRV 192.168.50.20 | DNS | A | | | |
 | S0-T04 | FIN-PC1 | FIN-SRV 192.168.50.40 | FTP | A | | | |
 | S0-T05 | HR-PC1 | HR-SRV 192.168.50.30 | HTTPS | A | | | |
 | S0-T06 | IT-PC1 | R-CORE 192.168.30.1 | SSH | A | | | |
 | S0-T07 | HR-PC1 | FIN-PC1 192.168.20.11 | ICMP | A | | | |
 | S0-T08 | SAL-PC1 | FIN-SRV 192.168.50.40 | FTP | A | | | |
-| S0-T09 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | A | | | |
+| S0-T09 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | A | not run | | |
 | S0-T10 | SAL-PC1 | HR-SRV 192.168.50.30 | HTTPS | A | | | |
 | S0-T11 | SAL-PC1 | R-CORE 192.168.40.1 | SSH | A | | | |
 | S0-T12 | IT-PC1 | R-CORE 192.168.30.1 | Telnet | A | | | |
@@ -99,27 +113,27 @@ If any Stage 0 test fails, fix the network **before** running the pilot or any s
 | S0-T17 | HR-PC1 | EXT-WEB 203.0.113.10 | HTTP | A | | | |
 | S0-T18 | HR-PC1 | HR-PC2 192.168.10.12 | ICMP | A | | | |
 | S0-T19 | SAL-PC1 | R-CORE 192.168.50.1 | SSH | A | | | |
-| S0-T20 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | A | | | |
-| S0-T21 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | A | | | |
-| S0-T22 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | A | | | |
-| S0-T23 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | A | | | |
-| S0-T24 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | A | | | |
-| S0-T25 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | A | | | |
-| S0-T26 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | A | | | |
+| S0-T20 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | A | not run | | |
+| S0-T21 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | A | not run | | |
+| S0-T22 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | A | not run | | |
+| S0-T23 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | A | not run | | |
+| S0-T24 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | A | not run | | |
+| S0-T25 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | A | not run | | |
+| S0-T26 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | A | not run | | |
 
 ## 4. Stage 1 runs
 
 | Exp ID | Stage | Source | Destination | Service | Req. | Expected (planned) | Actual | Evidence | Interpretation |
 |---|---|---|---|---|---|---|---|---|---|
 | S1-T01 | 1 | HR-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | | | |
-| S1-T02 | 1 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | R2 | A | | | |
+| S1-T02 | 1 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | R2 | A | not run | | |
 | S1-T03 | 1 | HR-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | | | |
 | S1-T04 | 1 | FIN-PC1 | FIN-SRV 192.168.50.40 | FTP | R4 | A | | | |
 | S1-T05 | 1 | HR-PC1 | HR-SRV 192.168.50.30 | HTTPS | R3 | A | | | |
 | S1-T06 | 1 | IT-PC1 | R-CORE 192.168.30.1 | SSH | R5 | A | | | |
 | S1-T07 | 1 | HR-PC1 | FIN-PC1 192.168.20.11 | ICMP | X1 | A* | | | |
 | S1-T08 | 1 | SAL-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | A* | | | |
-| S1-T09 | 1 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | A* | | | |
+| S1-T09 | 1 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | A* | not run | | |
 | S1-T10 | 1 | SAL-PC1 | HR-SRV 192.168.50.30 | HTTPS | X2 | A* | | | |
 | S1-T11 | 1 | SAL-PC1 | R-CORE 192.168.40.1 | SSH | X4 | A* | | | |
 | S1-T12 | 1 | IT-PC1 | R-CORE 192.168.30.1 | Telnet | X5 | A* | | | |
@@ -130,27 +144,27 @@ If any Stage 0 test fails, fix the network **before** running the pilot or any s
 | S1-T17 | 1 | HR-PC1 | EXT-WEB 203.0.113.10 | HTTP | R7 | A | | | |
 | S1-T18 | 1 | HR-PC1 | HR-PC2 192.168.10.12 | ICMP | U1 | A† | | | |
 | S1-T19 | 1 | SAL-PC1 | R-CORE 192.168.50.1 | SSH | X4 | A* | | | |
-| S1-T20 | 1 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | X4 | A* | | | |
-| S1-T21 | 1 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | X7 | D | | | |
-| S1-T22 | 1 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | R5 | A | | | |
-| S1-T23 | 1 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | | | |
-| S1-T24 | 1 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | | | |
-| S1-T25 | 1 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | X4, X5 | A* | | | |
-| S1-T26 | 1 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | X4, X5 | A* | | | |
+| S1-T20 | 1 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | X4 | A* | not run | | |
+| S1-T21 | 1 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | X7 | D | not run | | |
+| S1-T22 | 1 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | R5 | A | not run | | |
+| S1-T23 | 1 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | not run | | |
+| S1-T24 | 1 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | not run | | |
+| S1-T25 | 1 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | X4, X5 | A* | not run | | |
+| S1-T26 | 1 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | X4, X5 | A* | not run | | |
 
 ## 5. Stage 2 runs
 
 | Exp ID | Stage | Source | Destination | Service | Req. | Expected (planned) | Actual | Evidence | Interpretation |
 |---|---|---|---|---|---|---|---|---|---|
 | S2-T01 | 2 | HR-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | | | |
-| S2-T02 | 2 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | R2 | A | | | |
+| S2-T02 | 2 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | R2 | A | not run | | |
 | S2-T03 | 2 | HR-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | | | |
 | S2-T04 | 2 | FIN-PC1 | FIN-SRV 192.168.50.40 | FTP | R4 | A | | | |
 | S2-T05 | 2 | HR-PC1 | HR-SRV 192.168.50.30 | HTTPS | R3 | A | | | |
 | S2-T06 | 2 | IT-PC1 | R-CORE 192.168.30.1 | SSH | R5 | A | | | |
 | S2-T07 | 2 | HR-PC1 | FIN-PC1 192.168.20.11 | ICMP | X1 | D | | | |
 | S2-T08 | 2 | SAL-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | A* | | | |
-| S2-T09 | 2 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | A* | | | |
+| S2-T09 | 2 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | A* | not run | | |
 | S2-T10 | 2 | SAL-PC1 | HR-SRV 192.168.50.30 | HTTPS | X2 | A* | | | |
 | S2-T11 | 2 | SAL-PC1 | R-CORE 192.168.40.1 | SSH | X4 | D | | | |
 | S2-T12 | 2 | IT-PC1 | R-CORE 192.168.30.1 | Telnet | X5 | A* | | | |
@@ -161,27 +175,27 @@ If any Stage 0 test fails, fix the network **before** running the pilot or any s
 | S2-T17 | 2 | HR-PC1 | EXT-WEB 203.0.113.10 | HTTP | R7 | A | | | |
 | S2-T18 | 2 | HR-PC1 | HR-PC2 192.168.10.12 | ICMP | U1 | A† | | | |
 | S2-T19 | 2 | SAL-PC1 | R-CORE 192.168.50.1 | SSH | X4 | D | | | |
-| S2-T20 | 2 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | X4 | D | | | |
-| S2-T21 | 2 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | X7 | D | | | |
-| S2-T22 | 2 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | R5 | A | | | |
-| S2-T23 | 2 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | | | |
-| S2-T24 | 2 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | | | |
-| S2-T25 | 2 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | X4, X5 | D | | | |
-| S2-T26 | 2 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | X4, X5 | D | | | |
+| S2-T20 | 2 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | X4 | D | not run | | |
+| S2-T21 | 2 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | X7 | D | not run | | |
+| S2-T22 | 2 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | R5 | A | not run | | |
+| S2-T23 | 2 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | not run | | |
+| S2-T24 | 2 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | not run | | |
+| S2-T25 | 2 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | X4, X5 | D | not run | | |
+| S2-T26 | 2 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | X4, X5 | D | not run | | |
 
 ## 6. Stage 3 runs
 
 | Exp ID | Stage | Source | Destination | Service | Req. | Expected (planned) | Actual | Evidence | Interpretation |
 |---|---|---|---|---|---|---|---|---|---|
 | S3-T01 | 3 | HR-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | | | |
-| S3-T02 | 3 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | R2 | A | | | |
+| S3-T02 | 3 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTPS | R2 | A | not run | | |
 | S3-T03 | 3 | HR-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | | | |
 | S3-T04 | 3 | FIN-PC1 | FIN-SRV 192.168.50.40 | FTP | R4 | A (subject to P7) | | | |
 | S3-T05 | 3 | HR-PC1 | HR-SRV 192.168.50.30 | HTTPS | R3 | A | | | |
 | S3-T06 | 3 | IT-PC1 | R-CORE 192.168.30.1 | SSH | R5 | A | | | |
 | S3-T07 | 3 | HR-PC1 | FIN-PC1 192.168.20.11 | ICMP | X1 | D | | | |
 | S3-T08 | 3 | SAL-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | D | | | |
-| S3-T09 | 3 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | D | | | |
+| S3-T09 | 3 | HR-PC1 | FIN-SRV 192.168.50.40 | FTP | X3 | D | not run | | |
 | S3-T10 | 3 | SAL-PC1 | HR-SRV 192.168.50.30 | HTTPS | X2 | D | | | |
 | S3-T11 | 3 | SAL-PC1 | R-CORE 192.168.40.1 | SSH | X4 | D | | | |
 | S3-T12 | 3 | IT-PC1 | R-CORE 192.168.30.1 | Telnet | X5 | D | | | |
@@ -192,13 +206,13 @@ If any Stage 0 test fails, fix the network **before** running the pilot or any s
 | S3-T17 | 3 | HR-PC1 | EXT-WEB 203.0.113.10 | HTTP | R7 | A | | | |
 | S3-T18 | 3 | HR-PC1 | HR-PC2 192.168.10.12 | ICMP | U1 | A† | | | |
 | S3-T19 | 3 | SAL-PC1 | R-CORE 192.168.50.1 | SSH | X4 | D | | | |
-| S3-T20 | 3 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | X4 | D | | | |
-| S3-T21 | 3 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | X7 | D | | | |
-| S3-T22 | 3 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | R5 | A | | | |
-| S3-T23 | 3 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | | | |
-| S3-T24 | 3 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | | | |
-| S3-T25 | 3 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | X4, X5 | D | | | |
-| S3-T26 | 3 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | X4, X5 | D | | | |
+| S3-T20 | 3 | SAL-PC1 | R-EDGE 10.0.0.2 | SSH | X4 | D | not run | | |
+| S3-T21 | 3 | EXT-HOST | HR-PC1 192.168.10.11 | ICMP | X7 | D | not run | | |
+| S3-T22 | 3 | IT-PC1 | R-EDGE 10.0.0.2 | SSH | R5 | A | not run | | |
+| S3-T23 | 3 | SAL-PC1 | WEB-SRV 192.168.50.10 | HTTP | R2 | A | not run | | |
+| S3-T24 | 3 | SAL-PC1 | DNS-SRV 192.168.50.20 | DNS | R1 | A | not run | | |
+| S3-T25 | 3 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | X4, X5 | D | not run | | |
+| S3-T26 | 3 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | X4, X5 | D | not run | | |
 
 ## 7. Stage comparison
 
@@ -211,10 +225,10 @@ Fill this in only from the tables above and from the saved configurations. Metri
 | Explicit ACL entries | TBD | TBD | TBD |
 | Match conditions (sum) | TBD | TBD | TBD |
 | Order-dependent entry pairs (from config) | TBD | TBD | TBD |
-| Required-flow tests passed (of 12) | TBD | TBD | TBD |
-| Forbidden-flow tests permitted (of 13) | TBD | TBD | TBD |
-| Sales exposed services (of 9) / unnecessary | TBD | TBD | TBD |
-| Zero-match entries after the full run | TBD | TBD | TBD |
+| Required test cases passed (of 8 run) | TBD | TBD | TBD |
+| Forbidden test cases permitted (of 8 run) | TBD | TBD | TBD |
+| Sales exposed services | not measured | not measured | not measured |
+| Zero-match entries (relative to the 17 test cases run) | TBD | TBD | TBD |
 | Configuration lines changed from the previous stage | — | TBD | TBD |
 
 ## 8. Controlled misconfiguration experiments

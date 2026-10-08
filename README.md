@@ -14,7 +14,8 @@ This is one integrated case study with three parts:
 |---|---|
 | G0 Architecture | **Approved** 2026-10-08 (with conditions) |
 | Detailed network design | Complete; reconciled 2026-10-08 (`network-design/`, `packet-tracer/`) |
-| Pilot (P1–P9) | Not started (`packet-tracer/PILOT-PLAN.md`) |
+| Pilot | Draft scope: P3, P7 and P8 only; not started (`packet-tracer/PILOT-PLAN.md`) |
+| Test runs | Draft scope: the same 17 of 26 test cases in Stage 0 and Stages 1–3; not started |
 | G1 Network (Stage 0) | Not started |
 | G2 Policy stages 1–3 | Not started |
 | G3 References verified | 18 sources metadata-checked (10 peer-reviewed, 3 RFCs, 3 NIST, 2 supporting); 0 full-text verified by the team |

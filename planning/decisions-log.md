@@ -17,16 +17,17 @@ Record team decisions and Packet Tracer pilot findings here, newest entry at the
 | 2026-10-08 | DESIGN CHANGE | Metric definitions | "Exposed service", "order-dependent pair" (opposite actions, overlapping matches, terminal deny excluded) and "ACL definitions vs distinct names" are defined. Stage 1 count corrected to 4 definitions / 3 names. | acl-design §6 | Claude |
 | 2026-10-08 | TEAM DECISION | M3 | **Deferred.** It can be reinstated only by a later logged team decision, with its own written procedure. | acl-design §9 | Claude (on the team's instruction) |
 | 2026-10-08 | DESIGN CHANGE | FTP data channel | **No data-port ACL entry** in advance. Under real IOS behaviour, Stage 3 would block the data connection in both active and passive mode (acl-design §5.1). Pilot P7 decides; any added entry, or the switch to HTTPS, is a team decision. | acl-design §5.1 | Claude |
+| 2026-10-08 | TEAM DECISION | 17-test run subset for the draft | The full 26 test cases remain the designed set. The same 17 are run in Stage 0 and Stages 1–3: required T01, T03, T04, T05, T06, T14, T15, T17; forbidden T07, T08, T10, T11, T12, T13, T16, T19; control T18. T02, T09 and T20–T26 are marked not run. The Sales exposure metric is dropped for this draft. Zero-match entries are reported relative to the 17 test cases run. Conclusions are limited to the 17 test cases run. Pilot scope for the draft: P3, P7 and P8 only; P1, P2, P4, P5, P6 and P9 are not run unless needed. No observed result may be copied from a planned expectation. | Team message, 2026-10-08 | Claude (on the team's instruction) |
 | | TEAM DECISION | Packet Tracer version used by all members | | | |
 | | TEAM DECISION | Team name, members, registration numbers (title page) | | | |
 | | TEAM DECISION | Submission deadline and seminar date | | | |
-| | PILOT RESULT | P1 DNS | | | |
-| | PILOT RESULT | P2 HTTPS | | | |
+| | PILOT RESULT | P1 DNS | Not run (out of the draft's pilot scope; run only if needed) | | |
+| | PILOT RESULT | P2 HTTPS | Not run (out of the draft's pilot scope; run only if needed) | | |
 | | PILOT RESULT | P3 ACL counters / clearing | | | |
-| | PILOT RESULT | P4 Simulation Mode drop evidence | | | |
-| | PILOT RESULT | P5 Sequence numbers / remarks | | | |
-| | PILOT RESULT | P6 `established` | | | |
+| | PILOT RESULT | P4 Simulation Mode drop evidence | Not run (out of the draft's pilot scope; run only if needed) | | |
+| | PILOT RESULT | P5 Sequence numbers / remarks | Not run (out of the draft's pilot scope; run only if needed) | | |
+| | PILOT RESULT | P6 `established` | Not run (out of the draft's pilot scope; run only if needed) | | |
 | | PILOT RESULT | P7 FTP (outcome a/b/c and the ports observed) | | | |
 | | TEAM DECISION | FTP follow-up (only if P7 outcome is b): minimal entry, or switch R4 to HTTPS | | | |
 | | PILOT RESULT | P8 SSH, VTY 0 15, access-class, alternate addresses | | | |
-| | PILOT RESULT | P9 Telnet / transport input ssh | | | |
+| | PILOT RESULT | P9 Telnet / transport input ssh | Not run (out of the draft's pilot scope; run only if needed) | | |
