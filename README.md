@@ -17,8 +17,8 @@ This is one integrated case study with three parts:
 | Pilot (P1–P9) | Not started (`packet-tracer/PILOT-PLAN.md`) |
 | G1 Network (Stage 0) | Not started |
 | G2 Policy stages 1–3 | Not started |
-| G3 References verified | 0 / 15 (0 / 8 peer-reviewed or standards) |
-| G4 Drafts | Not started |
+| G3 References verified | 18 sources metadata-checked (10 peer-reviewed, 3 RFCs, 3 NIST, 2 supporting); 0 full-text verified by the team |
+| G4 Drafts | `report/case-study-draft.md` v0.1: Part A drafted; Part B design written, results blank; Part C provisional |
 | G5 QC | Not started |
 
 ## Assignment requirements (from `admin/Guidelines.pdf`)
