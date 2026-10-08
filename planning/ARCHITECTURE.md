@@ -2,7 +2,13 @@
 
 **Topic 17:** Firewall Policy Complexity: From Simple ACLs to Least Privilege Network Access
 **Course:** BACSE203 Computer Networks, Fall 2026, VIT Vellore
-**Status:** DRAFT. Waiting for team approval. Nothing here is a result.
+**Status:** APPROVED by the team on 2026-10-08, with conditions (`planning/decisions-log.md`). Nothing here is a result.
+
+> **Superseded detail.** The detailed network design in `network-design/` takes precedence where it differs from this document. In particular:
+> - **Stage 1** is a *broad internal ACL* applied at the same points as Stages 2–3, not "perimeter-only".
+> - **VLAN 99** is deferred.
+> - **M1** runs on a copy of Stage 2.
+> - There are **22 tests** (T19–T22 added).
 
 ### Labels used in every project document
 
@@ -271,7 +277,7 @@ There is also an **uncontrollable flow, U1**: traffic between PCs in the same VL
 | Stage | Name | Where ACLs are applied | Policy logic [PROPOSED DESIGN] | Expected remaining excess |
 |---|---|---|---|---|
 | 0 | Connectivity baseline | None | Verify VLANs, trunks, routing and services. **This is not a policy stage.** | Everything is reachable |
-| 1 | Perimeter-only ("trusted inside") | R-EDGE G0/1 inbound only | Outside → WEB-SRV 80/443 permitted; return traffic for inside-initiated sessions (`established`, ICMP echo-reply); everything else from outside denied. Inside is flat; VTY allows Telnet and SSH from anywhere. | X1–X6 all permitted |
+| 1 | Broad internal policy (revised) | Same 7 points as Stages 2–3 | Edge as before. One shared internal ACL allows any internal source to reach any destination. VTY allows any internal source, Telnet and SSH. | X1–X6 permitted |
 | 2 | Department-based (zone-level, IP-only) | Stage 1 rules, plus R-CORE G0/0.10/.20/.30/.40 inbound; VTY `access-class` IT-only | Each department can reach the whole server subnet (any protocol) and the Internet; inter-department traffic denied; management restricted to IT | X2, X3, X5, X6 still permitted, because a whole subnet is trusted |
 | 3 | Least privilege (host + protocol + port) | Same interfaces as Stage 2 | Specific host and port per required flow (R1–R8); no ICMP to servers except from IT; SSH-only VTY; deny internal destinations *before* permitting Internet web (an ordering-dependent pair) | Only U1, plus anything L3/L4 cannot express |
 | M1 | Controlled misconfiguration (copy of Stage 3) | Same | Insert a broad `permit` above a specific `deny`, then show the deny entry is shadowed (0 matches in `show access-lists`) and a forbidden flow opens up. Restore afterwards. | Shows the literature's shadowing problem |

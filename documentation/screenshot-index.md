@@ -19,7 +19,7 @@ Rules:
 | F04 | Stage 0 connectivity (ping matrix) | result | 0 | | | | | |
 | F05 | Stage 1 perimeter ACL (`show run` section) | config | 1 | | | | | |
 | F06 | Stage 1 excessive access (e.g. T08/T10 succeed) | result | 1 | | | | | |
-| F07 | Stage 1 external denied (T16) | result | 1 | | | | | |
+| F07 | Stage 1 external denied (T16, T21) | result | 1 | | | | | |
 | F08 | Stage 2 department ACLs + access-class | config | 2 | | | | | |
 | F09 | Stage 2 inter-department denied (T07) | result | 2 | | | | | |
 | F10 | Stage 2 residual access (T08) | result | 2 | | | | | |
@@ -29,6 +29,6 @@ Rules:
 | F14 | Stage 3 `show access-lists` with match counters | result | 3 | | | | | |
 | F15 | Simulation Mode: packet dropped at R-CORE | result | 3 | | | | | |
 | F16 | Same-VLAN traffic unaffected (T18) | result | 3 | | | | | |
-| F17 | M1 shadowing: reordered ACL + zero-match deny | config/result | M1 | | | | | |
+| F17 | M1 shadowing: appended deny with zero matches, then fix | config/result | M1 (copy of Stage 2) | | | | | |
 | F18 | M2 over-restriction: DNS failure | result | M2 | | | | | |
 | F19 | Stage comparison chart | chart | all | — | | | | |

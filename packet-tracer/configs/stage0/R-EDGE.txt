@@ -1,0 +1,30 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! Stage 0 - base configuration (no ACLs)
+enable
+configure terminal
+hostname R-EDGE
+no ip domain-lookup
+enable secret Lab#Enable26
+username itadmin privilege 15 secret ItAdmin#26
+ip domain-name corp.test
+crypto key generate rsa general-keys modulus 1024
+ip ssh version 2
+!
+interface GigabitEthernet0/0
+ description Transit to R-CORE G0/2
+ ip address 10.0.0.2 255.255.255.252
+ no shutdown
+interface GigabitEthernet0/1
+ description External zone (SW-EXT)
+ ip address 203.0.113.1 255.255.255.0
+ no shutdown
+exit
+! Summary route to all internal VLANs (no NAT - stated simplification)
+ip route 192.168.0.0 255.255.0.0 10.0.0.1
+!
+line vty 0 15
+ login local
+ transport input telnet ssh
+end
+write memory

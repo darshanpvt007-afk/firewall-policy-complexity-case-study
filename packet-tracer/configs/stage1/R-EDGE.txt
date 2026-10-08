@@ -1,0 +1,29 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! STAGE 1 (broad) - applied on top of stage0. Traceability: network-design/acl-design.md section 3
+enable
+configure terminal
+ip access-list extended ACL-EDGE-IN
+ remark R8 public portal
+ permit tcp any host 192.168.50.10 eq www
+ permit tcp any host 192.168.50.10 eq 443
+ remark R7 return traffic - broad (any source port)
+ permit tcp any 192.168.0.0 0.0.255.255 established
+ remark Broad ICMP returns
+ permit icmp any 192.168.0.0 0.0.255.255 echo-reply
+ permit icmp any 192.168.0.0 0.0.255.255 unreachable
+ permit icmp any 192.168.0.0 0.0.255.255 time-exceeded
+ remark X7 explicit deny for counters
+ deny ip any any
+exit
+interface GigabitEthernet0/1
+ ip access-group ACL-EDGE-IN in
+exit
+ip access-list standard ACL-VTY
+ remark Broad - any internal source may reach the login prompt
+ permit 192.168.0.0 0.0.255.255
+exit
+line vty 0 15
+ access-class ACL-VTY in
+end
+write memory

@@ -12,7 +12,8 @@ This is one integrated case study with three parts:
 
 | Gate | State |
 |---|---|
-| G0 Architecture | Draft, awaiting team approval (`planning/ARCHITECTURE.md`) |
+| G0 Architecture | **Approved** 2026-10-08 (with conditions) |
+| Detailed network design | Draft for review (`network-design/`, `packet-tracer/configs/`) |
 | G1 Network (Stage 0) | Not started |
 | G2 Policy stages 1–3 | Not started |
 | G3 References verified | 0 / 15 (0 / 8 peer-reviewed or standards) |

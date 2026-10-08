@@ -1,0 +1,91 @@
+! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
+! Lab-only credentials. See network-design/ for rationale and ACL traceability.
+! STAGE 3 (least privilege) - apply to stage2.pkt. Traceability: acl-design.md section 5
+enable
+configure terminal
+interface GigabitEthernet0/0.10
+ no ip access-group ACL-HR-IN in
+interface GigabitEthernet0/0.20
+ no ip access-group ACL-FIN-IN in
+interface GigabitEthernet0/0.30
+ no ip access-group ACL-IT-IN in
+interface GigabitEthernet0/0.40
+ no ip access-group ACL-SAL-IN in
+exit
+no ip access-list extended ACL-HR-IN
+no ip access-list extended ACL-FIN-IN
+no ip access-list extended ACL-IT-IN
+no ip access-list extended ACL-SAL-IN
+!
+ip access-list extended ACL-HR-IN
+ remark R1 DNS
+ permit udp 192.168.10.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark R3 HR application
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.30 eq 443
+ remark X1-X6 - must stay ABOVE the R7 permits
+ deny ip 192.168.10.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.10.0 0.0.0.255 any eq www
+ permit tcp 192.168.10.0 0.0.0.255 any eq 443
+ deny ip any any
+ip access-list extended ACL-FIN-IN
+ remark R1 DNS
+ permit udp 192.168.20.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark R4 finance records (FTP control). P-FTP: add ftp-data entry here only if pilot requires it
+ permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.40 eq ftp
+ remark X1-X6 - must stay ABOVE the R7 permits
+ deny ip 192.168.20.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.20.0 0.0.0.255 any eq www
+ permit tcp 192.168.20.0 0.0.0.255 any eq 443
+ deny ip any any
+ip access-list extended ACL-IT-IN
+ remark R1 DNS
+ permit udp 192.168.30.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.30.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.30.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark R6 troubleshooting ping to servers
+ permit icmp 192.168.30.0 0.0.0.255 192.168.50.0 0.0.0.255 echo
+ remark R5 SSH to R-CORE and R-EDGE
+ permit tcp 192.168.30.0 0.0.0.255 host 192.168.30.1 eq 22
+ permit tcp 192.168.30.0 0.0.0.255 host 10.0.0.2 eq 22
+ remark X1 X2 X3 X5 - must stay ABOVE the R7 permits
+ deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.30.0 0.0.0.255 any eq www
+ permit tcp 192.168.30.0 0.0.0.255 any eq 443
+ deny ip any any
+ip access-list extended ACL-SAL-IN
+ remark R1 DNS
+ permit udp 192.168.40.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.40.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.40.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark X1-X6 - must stay ABOVE the R7 permits
+ deny ip 192.168.40.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.40.0 0.0.0.255 any eq www
+ permit tcp 192.168.40.0 0.0.0.255 any eq 443
+ deny ip any any
+exit
+interface GigabitEthernet0/0.10
+ ip access-group ACL-HR-IN in
+interface GigabitEthernet0/0.20
+ ip access-group ACL-FIN-IN in
+interface GigabitEthernet0/0.30
+ ip access-group ACL-IT-IN in
+interface GigabitEthernet0/0.40
+ ip access-group ACL-SAL-IN in
+exit
+! ACL-VTY unchanged (IT only). X5: remove Telnet.
+line vty 0 15
+ transport input ssh
+end
+write memory
