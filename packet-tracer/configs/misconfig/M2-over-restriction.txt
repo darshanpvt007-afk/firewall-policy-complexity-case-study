@@ -1,15 +1,59 @@
 ! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
 ! Lab-only credentials. See network-design/ for rationale and ACL traceability.
-! M2 - CONTROLLED MISCONFIGURATION. Run ONLY on m2.pkt (a copy of stage3.pkt). Results kept separate.
+! M2 - CONTROLLED MISCONFIGURATION (over-restriction: hidden DNS dependency).
+! Run ONLY on m2.pkt (a copy of stage3.pkt). Results are kept separate (test-matrix.md section 8).
 ! Device: R-CORE
-! Pilot P5: first run 'show access-lists' and confirm the actual sequence numbers before using 'no <seq>'.
+!
+! DEPENDENCY: removal and restore use sequence-number editing, which needs pilot P5
+! (NOT RUN in the current draft scope). Without P5, use the fallback at the end. Until then, M2 is "not run".
+!
+! --- M2-a: baseline on the unchanged Stage 3 copy ---
 enable
+show access-lists ACL-HR-IN
+! Save as results/m2/M2-a-acl.txt; confirm the DNS permit is seq 10 (if not, use its actual number below)
+clear access-list counters
+! From HR-PC1, in this order:
+!   1. nslookup portal.corp.test         (T03; expected: returns 192.168.50.10)
+!   2. browser http://192.168.50.10      (T01; expected: page loads)
+!   3. browser http://portal.corp.test   (T29 form; expected: page loads)
+show access-lists ACL-HR-IN
+! Save as results/m2/M2-a-acl-after.txt (seq 10 and seq 20 counters should rise)
+!
+! --- M2-b: remove the DNS permit ---
 configure terminal
 ip access-list extended ACL-HR-IN
  no 10
 end
 show access-lists ACL-HR-IN
+! Save as results/m2/M2-b-acl.txt; confirm seq 10 is gone
 clear access-list counters
-! From HR-PC1: nslookup portal.corp.test ; browser http://192.168.50.10 ; browser http://portal.corp.test
+! Close and reopen the HR-PC1 browser (avoid a cached page), then from HR-PC1, in this order:
+!   M2-b1  nslookup portal.corp.test       expected (planned): fails (timeout)
+!   M2-b2  browser http://192.168.50.10    expected (planned): page loads (the web permit is untouched)
+!   M2-b3  browser http://portal.corp.test expected (planned): fails (name cannot be resolved)
 show access-lists ACL-HR-IN
-! Expected: DNS lookup and name-based browsing fail; IP-based browsing works; the deny-internal counter rises
+! Save as results/m2/M2-b-acl-after.txt
+! Expected (planned): the 'deny ip HR 192.168.0.0/16' counter rises (the DNS query now matches it);
+! the seq 20 web counter rises for M2-b2.
+! If M2-b3 still loads, record it (possible client-side name caching) and mark M2-b3 inconclusive.
+!
+! --- M2-c: restore the DNS permit at its original position ---
+configure terminal
+ip access-list extended ACL-HR-IN
+ 10 permit udp 192.168.10.0 0.0.0.255 host 192.168.50.20 eq domain
+end
+show access-lists ACL-HR-IN
+! Save as results/m2/M2-c-acl.txt; confirm the list matches M2-a-acl.txt
+clear access-list counters
+!
+! --- M2-d: recovery test - repeat the three M2-a steps from HR-PC1 ---
+show access-lists ACL-HR-IN
+! Save as results/m2/M2-d-acl-after.txt. Expected (planned): all three succeed again.
+show running-config
+! Save as results/m2/M2-d-running.txt; tools/acl_analysis.py --diff against the Stage 3 running config
+! should show no ACL difference.
+!
+! --- Fallback if P5 fails: delete and re-create ACL-HR-IN ---
+! Unbind ACL-HR-IN from G0/0.10, 'no ip access-list extended ACL-HR-IN', re-enter the Stage 3
+! ACL-HR-IN without the DNS lines (M2-b) and re-bind; for M2-c re-enter the full Stage 3 ACL.
+! Record that the fallback was used.

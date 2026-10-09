@@ -86,6 +86,28 @@ The other nine test cases (T02, T09, T20–T26) are marked **not run** in every 
 | T25 | SAL-PC1 | R-CORE 192.168.40.1 | Telnet | `telnet 192.168.40.1` | X4, X5 | A | A* | D | D |
 | T26 | SAL-PC1 | R-EDGE 10.0.0.2 | Telnet | `telnet 10.0.0.2` | X4, X5 | A | A* | D | D |
 
+### 2A. Proposed additional tests (designed, **not run**; team decision needed)
+
+These close coverage gaps found when building `network-design/coverage-matrix.md`. Expected values are traced from the configuration scripts by hand; they are **planned**, not results. None is in the 17-test subset. Each stays **not run** unless the team logs a decision in `planning/decisions-log.md`.
+
+| Test | Source | Destination | Service | Method | Req. | Exp. S0 | Exp. S1 | Exp. S2 | Exp. S3 | Gap it closes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| T27 | EXT-HOST | HR-SRV 192.168.50.30 | HTTPS | Browser `https://192.168.50.30` | X7 | A | D | D | D | X7 is otherwise tested against one destination only (T16) |
+| T28 | HR-PC1 | WEB-SRV 192.168.50.10 | TCP 23 (unused port) | `telnet 192.168.50.10` | X6 | A‡ | A*‡ | A*‡ | D | X6 is otherwise tested with ICMP only (T13) |
+| T29 | HR-PC1 | WEB-SRV via DNS-SRV | DNS, then HTTP | Browser `http://portal.corp.test` | R1, R2 | A | A | A | A | No required test exercises a full name-based application access |
+
+‡ WEB-SRV runs no service on TCP 23, so the client fails in **every** stage. T28 is judged at the router, not at the client: "A" means the packet passes R-CORE (counter of the matching permit rises, or Simulation Mode shows it forwarded), "D" means it is dropped by an ACL entry (deny counter rises). Feasibility depends on pilot P3 (counters) or P4 (Simulation Mode); if neither gives evidence, T28 is recorded as inconclusive.
+
+**Re-including tests already designed.** The team may also move these back into the run subset:
+
+| Test | Why |
+|---|---|
+| T22 (IT → R-EDGE SSH, required) | R5 is otherwise tested only towards R-CORE (T06). T22, not T06, tests R-EDGE. |
+| T20 (Sales → R-EDGE SSH, forbidden) | Unauthorised SSH to R-EDGE (X4); pairs with T22 |
+| T21 (EXT-HOST → HR-PC1 ICMP, forbidden) | A second X7 destination and protocol |
+
+Adding tests changes the leakage and required-success denominators. They must then be applied in **all** stages, including Stage 0, so that the denominators stay equal across stages (`network-design/metrics-spec.md` §2).
+
 ## 3. Stage 0 baseline runs (no ACLs; positive control)
 
 **Every test must be allowed here, including T16 and T21.** That proves each forbidden flow is routable and its service is running. A later denial can then be attributed to an ACL, not to a routing or service fault.
@@ -216,32 +238,39 @@ If any Stage 0 test fails, fix the network **before** running the pilot or any s
 
 ## 7. Stage comparison
 
-Fill this in only from the tables above and from the saved configurations. Metric definitions are in `acl-design.md` §6.1; planned values are in §6.2.
+Fill this in only from the tables above and from the **saved running configurations**. Metric definitions are in `network-design/metrics-spec.md`; configuration-derived planned values are listed there and must not be copied into this table.
 
 | Metric | Stage 1 | Stage 2 | Stage 3 |
 |---|---|---|---|
-| Application points | TBD | TBD | TBD |
-| ACL definitions (distinct names) | TBD | TBD | TBD |
-| Explicit ACL entries | TBD | TBD | TBD |
-| Match conditions (sum) | TBD | TBD | TBD |
-| Order-dependent entry pairs (from config) | TBD | TBD | TBD |
-| Required test cases passed (of 8 run) | TBD | TBD | TBD |
-| Forbidden test cases permitted (of 8 run) | TBD | TBD | TBD |
+| Enforcement points with an ACL bound | TBD | TBD | TBD |
+| Explicit ACL entries, per definition (`metrics-spec.md` §1) | TBD | TBD | TBD |
+| Explicit ACL entries, per enforcement point | TBD | TBD | TBD |
+| Permit-entry specificity distribution 0/1/2/3/4 (§4) | TBD | TBD | TBD |
+| Order-dependent entry pairs (§5, from config) | TBD | TBD | TBD |
+| Shadowed / redundant entries (§5, from config) | TBD | TBD | TBD |
+| Required test cases succeeded ÷ executed (§3) | TBD | TBD | TBD |
+| Forbidden test cases succeeded ÷ executed = leakage (§2) | TBD | TBD | TBD |
+| Zero-hit entries, relative to the tests run (§5; not the same as redundant) | TBD | TBD | TBD |
+| Configuration lines added / deleted from the previous stage (§7) | — | TBD | TBD |
 | Sales exposed services | not measured | not measured | not measured |
-| Zero-match entries (relative to the 17 test cases run) | TBD | TBD | TBD |
-| Configuration lines changed from the previous stage | — | TBD | TBD |
 
 ## 8. Controlled misconfiguration experiments
 
 These are reported **separately** and never mixed into §7.
 
+**Dependency:** M1-c, M2-b and M2-c need sequence-number editing (pilot P5), which is not run in the current draft scope. Both experiments stay **not run** until P5 is run or the fallback in the script is used. Steps and evidence files are in `configs/misconfig/`.
+
 | Exp ID | Base | Change | Test | Expected (planned) | Actual | Evidence | Interpretation |
 |---|---|---|---|---|---|---|---|
-| M1-b | copy of Stage 2 | Deny for SAL→FIN-SRV FTP appended at the end of ACL-SAL-IN | T08 | A (the appended deny shows 0 matches; it is shadowed) | | | |
-| M1-c | M1 after the fix | Deny inserted as seq 5 | T08 | D (the seq 5 counter rises) | | | |
-| M2-b1 | copy of Stage 3 | DNS permit removed from ACL-HR-IN | T03 nslookup | D (a required flow is broken) | | | |
-| M2-b2 | same | same | T01 by IP | A | | | |
-| M2-b3 | same | same | T01 by name `http://portal.corp.test` | D | | | |
+| M1-0 | copy of Stage 2 | none ("before" capture) | T08 | A* (seq 10 counter rises) | not run | | |
+| M1-b | M1-a: deny for SAL→FIN-SRV FTP appended at the end of ACL-SAL-IN | — | T08 | A* (appended deny shows 0 matches; shadowed per configuration) | not run | | |
+| M1-c1 | M1 after the fix | appended deny removed, deny inserted as seq 5 | T08 | D (seq 5 counter rises) | not run | | |
+| M1-c2 | same | same | SAL-PC1 browser `http://192.168.50.10` | A (required flow unaffected) | not run | | |
+| M2-a | copy of Stage 3 | none (baseline) | T03, T01, T29 | A, A, A | not run | | |
+| M2-b1 | same | DNS permit (seq 10) removed from ACL-HR-IN | T03 nslookup | D (required flow broken) | not run | | |
+| M2-b2 | same | same | T01 by IP | A | not run | | |
+| M2-b3 | same | same | T29 by name `http://portal.corp.test` | D (or inconclusive if the client cached the name) | not run | | |
+| M2-d | same | DNS permit restored as seq 10 | T03, T01, T29 | A, A, A (recovery) | not run | | |
 
 M3 (misordered permit) is **deferred** (`acl-design.md` §9).
 

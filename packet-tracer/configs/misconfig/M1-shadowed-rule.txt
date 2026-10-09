@@ -1,25 +1,65 @@
 ! [PROPOSED DESIGN] - NOT YET RUN IN PACKET TRACER. Paste in global config mode.
 ! Lab-only credentials. See network-design/ for rationale and ACL traceability.
-! M1 - CONTROLLED MISCONFIGURATION. Run ONLY on m1.pkt (a copy of stage2.pkt). Results kept separate.
+! M1 - CONTROLLED MISCONFIGURATION (shadowed rule). Run ONLY on m1.pkt (a copy of stage2.pkt).
+! Results are kept separate from the stage comparison (test-matrix.md section 8).
 ! Device: R-CORE
-! --- M1-a: append a deny without a sequence number (IOS appends it at the end) ---
-! Pilot P5: first run 'show access-lists' and confirm the actual sequence numbers before using 'no <seq>'.
+!
+! DEPENDENCY: M1-c uses sequence-number editing ('no <seq>', '<seq> deny ...').
+! That needs pilot P5, which is NOT RUN in the current draft scope. Run P5 first,
+! or use the delete-and-recreate fallback at the end of this file. Until then, M1 is "not run".
+!
+! Configuration-derived prediction (tools/acl_analysis.py --m1), NOT an observation:
+!   M1-a: 27 entries, 13 order-dependent pairs, 1 shadowed entry (the appended deny,
+!         covered by seq 10 'permit ip SALES 192.168.50.0/24'; it also sits after seq 40 'deny ip any any').
+!   M1-c: 11 order-dependent pairs, 0 shadowed entries.
+!
+! --- M1-0: "before" capture on the unchanged Stage 2 copy ---
 enable
+show running-config
+! Save as results/m1/M1-0-running.txt
+show access-lists ACL-SAL-IN
+! Save as results/m1/M1-0-acl.txt; confirm the actual sequence numbers (expected 10..40)
+clear access-list counters
+! Run T08 from SAL-PC1 (ftp 192.168.50.40, login). Expected (planned): A*, seq 10 counter rises.
+show access-lists ACL-SAL-IN
+! Save as results/m1/M1-0-acl-after.txt
+!
+! --- M1-a: append a deny without a sequence number (IOS appends it at the end) ---
 configure terminal
 ip access-list extended ACL-SAL-IN
  deny tcp 192.168.40.0 0.0.0.255 host 192.168.50.40 eq ftp
 end
 show access-lists ACL-SAL-IN
+! Save as results/m1/M1-a-acl.txt. Record the sequence number the new entry received
+! (expected 50; if different, use that number in M1-c instead of 50).
 clear access-list counters
-! --- M1-b: run test T08 from SAL-PC1 (ftp 192.168.50.40), then: ---
+!
+! --- M1-b: re-run T08 from SAL-PC1, then: ---
 show access-lists ACL-SAL-IN
-! Expected: the seq 10 permit counter rises; the appended deny shows no matches (shadowed)
-! --- M1-c: fix by inserting the deny before the broad permit (pilot P5) ---
+! Save as results/m1/M1-b-acl-after.txt
+! Expected (planned): T08 still succeeds; the seq 10 permit counter rises; the appended deny shows no matches.
+! A zero counter on the appended deny is consistent with shadowing; the shadowing itself is established
+! from the configuration (metrics-spec.md section 5), not from the counter alone.
+!
+! --- M1-c: fix by removing the appended entry and inserting the deny before the broad permit (needs P5) ---
 configure terminal
 ip access-list extended ACL-SAL-IN
  no 50
  5 deny tcp 192.168.40.0 0.0.0.255 host 192.168.50.40 eq ftp
 end
-clear access-list counters
-! Re-run T08, then:
 show access-lists ACL-SAL-IN
+! Save as results/m1/M1-c-acl.txt; confirm seq 5 is listed first and seq 50 is gone
+clear access-list counters
+! Re-run T08 (expected D, seq 5 counter rises).
+! Re-run a required Sales flow to show the fix did not break it: browser http://192.168.50.10 from SAL-PC1
+! (expected A, seq 10 counter rises).
+show access-lists ACL-SAL-IN
+! Save as results/m1/M1-c-acl-after.txt
+show running-config
+! Save as results/m1/M1-c-running.txt; compare with M1-0 using tools/acl_analysis.py --diff
+!
+! --- Fallback if P5 fails (no sequence editing): delete and re-create ACL-SAL-IN ---
+! interface GigabitEthernet0/0.40 / no ip access-group ACL-SAL-IN in
+! no ip access-list extended ACL-SAL-IN
+! re-enter the Stage 2 ACL-SAL-IN with the FTP deny as the FIRST entry, then re-bind it.
+! Record that the fallback was used and the extra lines it took.

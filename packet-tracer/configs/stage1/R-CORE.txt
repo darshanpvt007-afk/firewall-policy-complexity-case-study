@@ -6,7 +6,7 @@ configure terminal
 ip access-list extended ACL-USERS-IN
  remark Broad - any internal source to any destination
  permit ip 192.168.0.0 0.0.255.255 any
- remark Anti-spoofing explicit deny for counters
+ remark Catch-all: sources outside 192.168.0.0/16 (not BCP 38 validation); explicit for counters
  deny ip any any
 exit
 interface GigabitEthernet0/0.10

@@ -6,6 +6,7 @@ then post-process the Word XML (repeating table headers, rows kept together,
 captions kept with tables, A4 page with margins, page numbers in the footer).
 
 Usage: python3 report/build-docx.py [output.docx]
+       python3 report/build-docx.py source.md output.docx
 """
 import os
 import re
@@ -16,8 +17,11 @@ import tempfile
 import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "case-study-draft.md")
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "case-study-draft.docx")
+if len(sys.argv) > 2:
+    SRC, OUT = sys.argv[1], sys.argv[2]
+else:
+    SRC = os.path.join(HERE, "case-study-draft.md")
+    OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "case-study-draft.docx")
 
 PAGE_BREAK = '\n```{=openxml}\n<w:p><w:r><w:br w:type="page"/></w:r></w:p>\n```\n'
 

@@ -53,25 +53,32 @@ Save each command's output to `results/stage0/`.
 - Log every pilot result, and any fallback as a `[TEAM DECISION]`, in `planning/decisions-log.md` **before** changing any Stage 3 script.
 - If a fallback is adopted, update the scripts and the design documents before going on.
 
-## Step 5 — Each policy stage
+## Step 5 — Each policy stage (repeatable procedure)
 
-Repeat for Stage 1, then Stage 2, then Stage 3.
+Repeat exactly the same steps for Stage 1, then Stage 2, then Stage 3. Do not change the procedure between stages; if something must change, log it in `planning/decisions-log.md` and apply it to every stage.
 
-1. Open the previous stage's `.pkt` file. For Stage 1, that is `stage0.pkt`.
-2. Paste `configs/stageN/R-CORE.txt` and `configs/stageN/R-EDGE.txt`.
-3. Save the configuration evidence:
+1. **Record the version.** Write down the git commit of the scripts (`git log -1 --format=%h`) and the Packet Tracer version. Both go into the "Configuration version" column of `results/results.csv`.
+2. **Start from the previous stage.** Open the previous stage's `.pkt` file (for Stage 1, `stage0.pkt`) and save it straight away as `topology/stageN.pkt`.
+3. **Apply.** Paste `configs/stageN/R-CORE.txt` and `configs/stageN/R-EDGE.txt`. Note any line Packet Tracer rejects, word for word.
+4. **Verify the policy is in place** before testing:
 
-| Command | Save as |
-|---|---|
-| `show running-config` (both routers) | `configs/stageN/R-CORE.running.txt` and `configs/stageN/R-EDGE.running.txt` |
-| `show access-lists` | `results/stageN/acl-before.txt` |
-| `show ip interface <ap>` for each application point | `results/stageN/` (confirms which ACL is bound, and in which direction) |
+| Command | Save as | Check |
+|---|---|---|
+| `show running-config` (both routers) | `configs/stageN/R-CORE.running.txt`, `R-EDGE.running.txt` | — |
+| `show access-lists` | `results/stageN/acl-before.txt` | Every ACL in the script is present, in the script's order |
+| `show ip interface <ap>` for AP1–AP5 | `results/stageN/bindings.txt` | The right ACL is bound **inbound** at each point |
+| `show running-config \| section line vty` | in `bindings.txt` | AP6/AP7 access-class and `transport input` match the script |
 
-4. Run `clear access-list counters` on both routers.
-5. Run the **same 17 selected test cases** in order, using the methods in `tests/test-matrix.md`. Record each Actual result and its evidence ID immediately. Leave the nine unselected rows marked "not run".
-6. Save `show access-lists` → `results/stageN/acl-after.txt`. This is the denial evidence and the source for zero-match entries.
-7. Capture Simulation Mode evidence for at least one allowed flow and one denied flow.
-8. Save as `topology/stageN.pkt`.
+5. **Reconcile with the analysis.** Run `python3 tools/acl_analysis.py --running`. Its counts must equal the configuration-derived values in `network-design/metrics-spec.md`. If they differ, find out why (a rejected line, a wrong paste) before testing, and log it.
+6. **Clear counters** on both routers: `clear access-list counters`.
+7. **Run the same tests in the same order** as Stage 0, using the methods in `tests/test-matrix.md` §1. Fill in one row per test in `results/results.csv` immediately (Actual, Status, Matches stage prediction, Evidence). Rows outside the run subset stay "not run".
+8. **Save the counters:** `show access-lists` → `results/stageN/acl-after.txt`. This is the denial evidence and the source for zero-hit entries.
+9. Capture Simulation Mode evidence for at least one allowed flow and one denied flow.
+10. **Restore anything changed during testing.** If a test needed a temporary change (for example a browser setting or a service toggled), undo it and say so in Notes. The stage file must hold only the stage script.
+11. **Save** `topology/stageN.pkt` and commit the saved text files.
+12. **Lines changed:** `python3 tools/acl_analysis.py --diff configs/stage(N-1)/R-CORE.running.txt configs/stageN/R-CORE.running.txt`, and the same for R-EDGE.
+
+**If a test does not match its prediction,** do not edit the stage script to make it match. Record it as observed, check the setup, and log any fix as a decision; then re-run **all** the selected tests for that stage and record the re-run separately.
 
 ## Step 6 — Misconfiguration experiments (reported separately)
 
@@ -80,11 +87,15 @@ Repeat for Stage 1, then Stage 2, then Stage 3.
 | M1 | `stage2.pkt` | `m1.pkt` | `configs/misconfig/M1-shadowed-rule.txt` |
 | M2 | `stage3.pkt` | `m2.pkt` | `configs/misconfig/M2-over-restriction.txt` |
 
-- Record the results **only** in `tests/test-matrix.md` §8.
+- Both experiments need sequence-number editing (pilot P5, **not run** in the draft scope). Run P5 first, or use the delete-and-recreate fallback written at the end of each script. Until then, M1 and M2 stay "not run".
+- Each script includes a "before" capture (M1-0, M2-a), the change, the tests, and for M2 a restore and recovery test (M2-c, M2-d).
+- Record the results **only** in `tests/test-matrix.md` §8 and the M rows of `results/results.csv`.
 - M3 is deferred.
 
 ## Step 7 — Metrics
 
-- Fill in `tests/test-matrix.md` §7 using the definitions in `network-design/acl-design.md` §6.1, from saved files only.
+- Fill in `tests/test-matrix.md` §7 using the definitions in `network-design/metrics-spec.md`, from saved files only.
+- **Configuration measures** (entries, specificity, order-dependent, shadowed and redundant entries): `python3 tools/acl_analysis.py --running`.
+- **Leakage and required success:** from the Status column of executed rows in `results/results.csv`.
 - **Lines changed:** diff consecutive `*.running.txt` files.
 - **Order-dependent pairs and match conditions:** count them from the saved running configurations, not from the planned design.

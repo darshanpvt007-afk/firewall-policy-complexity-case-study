@@ -105,7 +105,8 @@ Background: `network-design/acl-design.md` §5.1. **Do not add any data-port ent
    - `get <file>`
 4. For each FTP packet, record its source and destination ports, and which side opened the connection.
 5. Run `show access-lists PILOT-FTP`.
-6. Interpret the outcome:
+6. **Confirm the transfer really completed:** after `get`, check on FIN-PC1 that the file arrived: record the client's transfer-complete message and, if this PT version can list the PC's local files, the listing. A login prompt alone is not enough.
+7. Interpret the outcome:
 
 | Outcome | What it means | Action |
 |---|---|---|
@@ -113,8 +114,11 @@ Background: `network-design/acl-design.md` §5.1. **Do not add any data-port ent
 | (b) Login works, `dir`/`get` fail, and the deny counter rises | The data connection is blocked | Note its direction and ports from the trace. The team chooses between: adding the single minimal entry the trace requires, or switching R4 to HTTPS. Log it as a `[TEAM DECISION]`. |
 | (c) Login fails | Not an ACL issue | Re-check Stage 0 |
 
-7. Remove PILOT-FTP.
-8. Result: ____ (a / b / c, with the ports observed)
+8. **If any entry is added** (outcome b): re-run the required test T04 (full login, `dir`, `get`) and the forbidden tests T08 and T16 against the changed design, and record that the added entry does not open FTP to Sales or to the outside.
+9. Remove PILOT-FTP.
+10. Result: ____ (a / b / c, with the ports observed)
+
+FTP stands in for a database service (R4). It shows how a multi-connection protocol interacts with port-based rules; it does not reproduce the behaviour of a real database protocol.
 
 ### P8 — SSH, VTY coverage, access-class and alternate addresses (R5, X4)
 

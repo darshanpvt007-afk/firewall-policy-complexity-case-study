@@ -10,6 +10,30 @@ Rules:
 
 The 17 selected test cases are: T01, T03, T04, T05, T06, T07, T08, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19. T02, T09 and T20–T26 are **not run**.
 
+## Results table — `results-template.csv`
+
+Copy it to `results.csv` and fill in the copy. One row per stage and test. Rows for tests outside the 17-test subset, and for the proposed tests T27–T29, stay **not run** unless a team decision adds them.
+
+| Column | How to fill it |
+|---|---|
+| Expected outcome | Already filled from `tests/test-matrix.md` (planned; do not edit) |
+| Actual outcome | What Packet Tracer showed: `A` (flow reached its target) or `D` (did not), with the exact client message in Notes |
+| Status | `pass`, `fail`, `not run` or `inconclusive`, judged against the **security policy**, not against the stage prediction (rules below) |
+| Matches stage prediction | `yes` or `no`: Actual compared with Expected for that stage |
+| Evidence filename | Path under `results/` or a figure ID. No evidence means Status `inconclusive` |
+| Configuration version | Git commit of the scripts used (`git log -1 --format=%h`) plus the `.pkt` file name |
+
+**Status rules:**
+
+| Test category | Actual A | Actual D |
+|---|---|---|
+| Required (R) | pass | fail; in Notes say "service/setup fault" if it also fails in Stage 0 or the service is off, otherwise "policy denial" with the counter or Simulation Mode evidence |
+| Forbidden (X) | **fail** (a policy failure, even though the connection worked) | pass, only with a deny counter rise or Simulation Mode drop |
+| Control (U1) | pass (shows the router ACL cannot filter it) | inconclusive; check the switch |
+| Any category in **Stage 0** | pass (positive control: the flow is routable and the service runs) | fail: fix the network before any stage |
+
+So a forbidden flow in Stage 1 that is allowed as predicted (`A*`) is recorded as Status `fail` and Matches stage prediction `yes`. Leakage and required success (`network-design/metrics-spec.md` §2–3) are counted from the Status column of executed rows only.
+
 ## Stage 0 (no ACLs) — `results/stage0/`
 
 | File | Content | By | Status |
@@ -39,6 +63,9 @@ The 17 selected test cases are: T01, T03, T04, T05, T06, T07, T08, T10, T11, T12
 | `../topology/stageN.pkt` | Saved stage file, built in order from the previous stage | P1 | pending |
 | `../configs/stageN/R-CORE.running.txt`, `R-EDGE.running.txt` | `show running-config` after applying the stage scripts | P1 | pending |
 | `acl-before.txt` | `show access-lists` before the run | P1 | pending |
+| `bindings.txt` | `show ip interface` for AP1–AP5 and the VTY section of both routers (which ACL is bound, in which direction) | P1 | pending |
+| `analysis.txt` | Output of `python3 tools/acl_analysis.py --running`, compared with `network-design/metrics-spec.md` | P1 | pending |
+| `results.csv` rows | Actual, Status, Matches stage prediction, Evidence and Configuration version for the stage | tester | pending |
 | `clear.txt` | Confirmation that `clear access-list counters` was run on both routers | tester | pending |
 | `SN-Txx.txt` or screenshots | One record per selected test case | tester | pending |
 | `acl-after.txt` | `show access-lists` after all 17 test cases (denial evidence; zero-match source) | tester | pending |
@@ -48,10 +75,10 @@ The 17 selected test cases are: T01, T03, T04, T05, T06, T07, T08, T10, T11, T12
 
 ## Optional — M1, M2 (`results/m1/`, `results/m2/`)
 
-Pending a team decision. If they are not run, mark test-matrix §8 and draft Table 8 "not run".
+Pending a team decision. Both need pilot P5 (sequence editing) or the fallback in the script. If they are not run, mark test-matrix §8 and draft Table 8 "not run". File names to save are written in each script (`configs/misconfig/M1-shadowed-rule.txt`, `M2-over-restriction.txt`): before capture, after the change, after the fix or restore, with `show access-lists` each time.
 
 ## What the report needs from these files
 
 - **Table 7:** the observed S0–S3 columns, from the test matrix.
-- **Table 9:** measured entry counts (from `acl-after.txt`); required test cases passed and forbidden test cases permitted (from the test matrix); zero-match entries (from `acl-after.txt`); configuration lines changed (diff of the running configs).
+- **Table 9:** measured entry counts and order-dependent pairs (`tools/acl_analysis.py --running`); required success and leakage (Status column of executed rows in `results.csv`); zero-hit entries (from `acl-after.txt`); configuration lines changed (`tools/acl_analysis.py --diff`).
 - **B8 and Part C:** observed outcomes only.

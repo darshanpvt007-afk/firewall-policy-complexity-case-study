@@ -75,12 +75,23 @@ Each stage is a *bundle* of refinements, **not** a change in granularity alone. 
 | An explicit `deny ip any any` at the end of each extended ACL | It behaves the same as the implicit deny, but it shows a match counter, which is the evidence for denials. ⚑P3 | Valid |
 | No NAT | The source address is preserved, so R-EDGE's access-class sees 192.168.30.x | Valid; simplification |
 
-## 3. Stage 1 — broad policy
+## 2A. ACL semantics and limitations
+
+| Topic | What applies in this design |
+|---|---|
+| **Direction** | Every interface ACL is applied **inbound**. On the user subinterfaces (AP2–AP5) inbound means "packets sent by hosts in that department, before routing", so each ACL's source is one subnet and the router itself is protected too (§2). On R-EDGE G0/1 inbound means "packets arriving from the external zone". Replies from servers enter R-CORE on G0/1.50, which has no ACL, and leave on the user subinterfaces, where no outbound ACL exists, so they are not filtered internally. |
+| **Implicit deny** | Every ACL ends with an implicit `deny any`; the extended ACLs also have an explicit terminal `deny ip any any` so denials have a counter. Consequences in this design: (a) Stage 2–3 user ACLs also block traffic to the department's own gateway address (for example ping to 192.168.10.1), which is not a required flow; (b) DHCP is not affected because all addresses are static; (c) no routing protocol runs (static routes only), so none is blocked; (d) ARP is not IP and is not filtered; (e) DNS (R1) works in Stage 3 only because entry 10 permits it explicitly — experiment M2 removes that entry to show the effect. |
+| **`established`** | The edge ACL uses `established`, which matches any TCP segment with the ACK or RST flag set. It is **not** a stateful connection table: a crafted outside packet with ACK set would match. It is used only to admit return traffic for inside-initiated web sessions. |
+| **Intra-VLAN traffic** | Hosts in the same VLAN (for example HR-PC1 and HR-PC2) exchange frames through SW-ACCESS without reaching R-CORE, so no router ACL applies. T18 is the control test for this. Stronger isolation would need separate VLANs, private VLANs, switch VLAN ACLs, host firewalls or microsegmentation; none is implemented here. |
+| **FTP data channel** | See §5.1. FTP is a proxy for the finance records service, not a database protocol. |
+| **Platform** | The Packet Tracer version, device models and which IOS commands are accepted are recorded only from observation (decisions log; pilot P8 records whether `crypto key generate rsa general-keys modulus 1024` and `line vty 0 15` were accepted). Nothing about the platform is assumed. |
+
+## 3. Stage 1 — broad internal-connectivity policy with perimeter filtering
 
 **Intent:** realistic but deliberately broad.
 
 - The edge filters inbound traffic.
-- One shared internal ACL checks only that the source is internal (anti-spoofing), then permits any destination.
+- One shared internal ACL permits any source inside 192.168.0.0/16 to reach any destination, and drops anything else. This is a **coarse internal-source restriction**, not source-address validation: it does not tie each department subnet to its own interface (an HR host could send with a Finance source address and still match entry 10), and it has not been tested with spoofed traffic. The design therefore does **not** implement BCP 38 / RFC 2827 ingress filtering, and the report must not claim that it does.
 - Router logins are allowed from any internal address, by Telnet or SSH.
 - Every enforcement point exists; the rules are simply coarse. This is **not** a flat network.
 
@@ -101,7 +112,7 @@ Each stage is a *bundle* of refinements, **not** a change in granularity alone. 
 | Seq | Entry | Traces to |
 |---|---|---|
 | 10 | `permit ip 192.168.0.0 0.0.255.255 any` | R1–R7. Also permits X1–X6 (excess). |
-| 20 | `deny ip any any` | Spoofed / non-internal sources |
+| 20 | `deny ip any any` | Catch-all: sources outside 192.168.0.0/16 (explicit, so it has a counter) |
 
 ### ACL-VTY (standard). Defined separately on R-CORE and R-EDGE.
 
@@ -137,7 +148,7 @@ ACL-FIN-IN (AP3) and ACL-SAL-IN (AP5) are identical, with source 192.168.20.0 an
 | 10 | `permit ip 192.168.10.0 0.0.0.255 192.168.50.0 0.0.0.255` | R1, R2, R3 | X2/X3 (other departments' servers); X6 (ICMP, any port); router address 192.168.50.1 |
 | 20 | `deny ip 192.168.10.0 0.0.0.255 192.168.0.0 0.0.255.255` | X1, X4 (gateway addresses) | Also blocks pinging the department's own gateway (an availability side-effect) |
 | 30 | `permit ip 192.168.10.0 0.0.0.255 any` | R7 | Any protocol to the outside and to 10.0.0.x |
-| 40 | `deny ip any any` | Anti-spoofing | — |
+| 40 | `deny ip any any` | Catch-all for sources outside the department subnet (explicit, so it has a counter) | — |
 
 ### ACL-IT-IN (AP4)
 
@@ -147,7 +158,7 @@ ACL-FIN-IN (AP3) and ACL-SAL-IN (AP5) are identical, with source 192.168.20.0 an
 | 20 | `permit ip 192.168.30.0 0.0.0.255 host 192.168.30.1` | R5 (R-CORE) | X5 Telnet |
 | 30 | `deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255` | X1 | — |
 | 40 | `permit ip 192.168.30.0 0.0.0.255 any` | R7, R5 (R-EDGE 10.0.0.2) | Any protocol outward |
-| 50 | `deny ip any any` | Anti-spoofing | — |
+| 50 | `deny ip any any` | Catch-all for sources outside the IT subnet (explicit, so it has a counter) | — |
 
 ### ACL-VTY (both routers)
 
@@ -275,6 +286,8 @@ Consequences:
 - **The forbidden FTP tests (T08, T09, T16)** only need the control connection to be refused, so they are unaffected by the data-channel question. Planned expectations: T08 and T09 allowed (excess) in Stages 1–2 and blocked in Stage 3; T16 blocked at the edge in every stage. None of this has been verified in Packet Tracer.
 
 ## 6. Metric definitions and planned values
+
+> The authoritative metric specification is now `network-design/metrics-spec.md`. The planned values below were re-derived from the configuration scripts with `tools/acl_analysis.py` and match; they are configuration-derived, not Packet Tracer observations.
 
 All values are **planned**, derived from the design. Measured values come only from the saved configurations and test runs.
 

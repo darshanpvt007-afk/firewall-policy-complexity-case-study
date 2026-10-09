@@ -53,8 +53,8 @@ Test definitions are in `packet-tracer/tests/test-matrix.md`.
 
 | Requirement | Tests |
 |---|---|
-| R1 | T03, T24 (+ M2) |
-| R2 | T01, T02, T23 |
+| R1 | T03, T24, T29† (+ M2) |
+| R2 | T01, T02, T23, T29† |
 | R3 | T05 |
 | R4 | T04 |
 | R5 | T06, T22 |
@@ -66,13 +66,13 @@ Test definitions are in `packet-tracer/tests/test-matrix.md`.
 | X3 | T08, T09 (+ M1) |
 | X4 | T11, T19, T20, T25, T26 |
 | X5 | T12, T25, T26 |
-| X6 | T13 |
-| X7 | T16, T21 |
+| X6 | T13, T28† |
+| X7 | T16, T21, T27† |
 | U1 | T18 |
 
-Every R and X requirement has at least one designed test.
+Every R and X requirement has at least one designed test. † Proposed test, not run (`packet-tracer/tests/test-matrix.md` §2A). The full mapping with source, destination, port and status is in `coverage-matrix.md`.
 
-**Draft scope (team decision, 2026-10-08).** Only 17 of the 26 designed test cases are run; T02, T09 and T20–T26 are **not run**. With that subset, every requirement still has at least one test, with two narrowings: R5 is tested only towards R-CORE (T06; T22 not run), and X7 only through T16 (T21 not run).
+**Draft scope (team decision, 2026-10-08).** Only 17 of the 26 designed test cases are run; T02, T09 and T20–T26 are **not run**. With that subset, every requirement still has at least one test, with two narrowings: R5 is tested only towards R-CORE (T06; T22 not run), and X7 only through T16 (T21 not run). X6 is tested with ICMP only (T13). Proposed fixes need a team decision (`coverage-matrix.md` §2).
 
 ## 6. Feasibility check against the final topology and Packet Tracer services (condition 9)
 

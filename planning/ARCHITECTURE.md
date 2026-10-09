@@ -77,9 +77,9 @@ Source: `admin/Guidelines.pdf` (4 pages, read in full).
 
 **Refined RQ [TEAM DECISION — approved and recorded in `decisions-log.md`, entry "RQ wording revised"]:**
 
-> In a multi-department enterprise network, how does progressively refining access-control policy — from a broad policy, to department-level segmentation, to service-level least privilege — change **(a)** the unnecessary communication that the policy permits among the 26 test cases and **(b)** the size, specificity and order-dependence of the policy, and how do these observed trade-offs compare with the firewall-policy management challenges reported in the literature?
+> In a multi-department enterprise network, how does progressively refining access-control policy — from a broad policy, to department-level segmentation, to service-level least privilege — change **(a)** the unnecessary communication that the policy permits among the test cases actually run and **(b)** the size, specificity and order-dependence of the policy, and how do these observed trade-offs compare with the firewall-policy management challenges reported in the literature?
 
-Short form (same `[TEAM DECISION]`): *"How does refining policy from broad, to department-level, to service-level least privilege change (a) the unnecessary flows the policy allows and (b) the policy's size, specificity and dependence on rule order, and how does this compare with the literature?"*
+Short form (wording updated 2026-10-09, see `decisions-log.md` entry "RQ short form, final wording"): *"How does refining network access policy from broad, to department-level, to service-level least privilege change (a) the unnecessary flows the policy allows and (b) the policy's size, specificity, and dependence on rule order, and how do these results compare with the literature?"*
 
 Why this wording:
 - It names the three stages, so the experimental design follows directly from the question.
@@ -293,7 +293,7 @@ Rules for building the stages:
 
 - Every Stage 2 and Stage 3 ACL entry must trace back to a requirement ID (R*/X*). The traceability lives in `acl-design.md`, plus `remark` lines in the configs.
 - The 7 enforcement points and their directions are identical in every stage. Each stage is a bundle of refinements (`acl-design.md` §1.2), so differences are attributed to the stage, not to granularity alone.
-- Do not create deliberately dangerous or nonsensical baselines. Stage 1 is broad but realistic: the internal ACL checks source legitimacy (anti-spoofing) and nothing more.
+- Do not create deliberately dangerous or nonsensical baselines. Stage 1 (broad internal-connectivity policy with perimeter filtering) is broad but realistic: the internal ACL admits any source inside 192.168.0.0/16 and nothing else. That is a coarse internal-source restriction, not BCP 38 source validation.
 - Keep one `.pkt` file per stage.
 
 ### 6.6 Pilot
