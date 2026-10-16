@@ -32,9 +32,9 @@ DRAFT STATUS (not rendered; remove before submission)
 **List of tables.**
 
 1. Comparison of access-control approaches
-2. Device inventory
-3. VLAN and addressing plan
-4. Required and forbidden flows
+2. Required and forbidden flows
+3. Device inventory
+4. VLAN and addressing plan
 5. What changes between policy stages
 6. ACL size and structure per stage (from configuration)
 7. Test cases: planned outcomes and observed results
@@ -211,13 +211,25 @@ The references follow IEEE style. The bibliographic details of every entry were 
 
 > **Status: design complete; simulation not yet run.** Every allowed or denied outcome in this part is a **planned expectation**, worked out by tracing packets through the rules by hand. Observed-result cells are blank and will be filled only from our own Packet Tracer runs. **Draft scope:** we run the same 17 of the 26 designed test cases in every stage; the other nine are marked *not run*. [PLACEHOLDER: Packet Tracer version used by all members.]
 
-## B1. Experimental Objective and Research Question
+## B1. Introduction, Problem Statement and Objectives
+
+**Problem statement.** Many small organisations run an internal network in which every department can reach every other department and every server. A router ACL can close those paths, but each step towards least privilege adds rules, conditions and dependence on rule order. Part A found that the literature rarely measures the security gained and the management cost incurred on the same policy as it is refined. This case study does that, on a small scale, in a simulated enterprise network.
+
 
 **Research question.** How does refining network access policy from broad, to department-level, to service-level least privilege change (a) the unnecessary flows the policy allows and (b) the policy's size, specificity, and dependence on rule order, and how do these results compare with the literature?
 
 **What we compare.** We compare three **policy stages**. Each stage changes several things at once (Table 5): the structure of the internal ACLs, their granularity, the edge filter and the rules for router management. We therefore attribute any difference to the stage as a whole, not to granularity alone.
 
-To keep the comparison fair, we hold the following constant in every stage: the topology, addressing, routing and server services; the required and forbidden flows; the seven points where filters are applied; and the same 17 test cases (of 26 designed), run with the same methods. Our conclusions are limited to those 17 test cases and to the traffic directions listed in B6.
+To keep the comparison fair, we hold the following constant in every stage: the topology, addressing, routing and server services; the required and forbidden flows; the seven points where filters are applied; and the same 17 test cases (of 26 designed), run with the same methods. Our conclusions are limited to those 17 test cases and to the traffic directions listed in B7.
+
+**Objectives.**
+
+1. Build a multi-department network in Cisco Packet Tracer and confirm that every test flow works with no ACLs (Stage 0).
+2. Write down the required and forbidden flows before writing any rule.
+3. Implement three policy stages at the same seven enforcement points: broad, department-level and service-level least privilege.
+4. Measure, for each stage, the unnecessary access that remains and the size, specificity and rule-order dependence of the policy.
+5. Reproduce two typical policy mistakes in controlled copies of the network.
+6. Compare the results with the literature reviewed in Part A (Part C).
 
 **Working expectations.** We expect the following, but we treat them as hypotheses to test, not as results:
 
@@ -226,49 +238,26 @@ To keep the comparison fair, we hold the following constant in every stage: the 
 - **E3.** Rule count alone does not capture complexity.
 - **E4.** Some excess access remains in every stage, because L3/L4 ACLs cannot express it.
 
-## B2. Network Architecture
+## B2. Research Method
 
-We designed a 19-device network with four departments, a server zone and a small simulated "Internet". It is large enough for policy to grow in interesting ways, but small enough to build and test by hand.
+We followed a phased method, moving to the next phase only when the previous one had been checked:
 
-- **R-CORE** routes between the department VLANs (router-on-a-stick) and holds all internal ACLs. We chose a router rather than a multilayer switch because IOS routers in Packet Tracer support extended ACLs and VTY access control fully, and because putting every internal policy decision on one device makes the rules easy to count and audit. The price is a single point of failure, which we accept as a simplification.
-- **R-EDGE** connects the external network and holds the edge ACL. Without it we could not show perimeter filtering, which is where the topic starts.
-- **External addresses** use the RFC 5737 documentation range 203.0.113.0/24 [18], so the simulated Internet does not use real public addresses.
-- **Two PCs per department** let us test traffic inside a VLAN, which never reaches the router and so cannot be filtered by a router ACL.
+| Phase | What we do | Output |
+|----------------|--------------------------|------------|
+| 1. Requirements analysis | List the flows the organisation needs (R) and must not have (X) | Table 2 |
+| 2. Network design | Choose devices, VLANs, addressing and the enforcement points | Tables 3 and 4 |
+| 3. Baseline and pilot | Build Stage 0 with no ACLs; confirm all test flows work; check the Packet Tracer features we rely on | Stage 0 results; pilot log |
+| 4. Policy implementation | Apply Stage 1, then Stage 2, then Stage 3 on top of the same network | Saved configurations |
+| 5. Testing and measurement | Run the same tests in every stage; record counters and evidence; compute the metrics | Tables 7–9 |
+| 6. Evaluation | Compare the measured trade-off with the literature | Part C |
 
-Routing is static and there is no NAT, which keeps external tests readable; Part C discusses what this leaves out.
+Every expected outcome in this part comes from tracing packets through the rules by hand; it is checked against what Packet Tracer actually shows in phase 5.
 
-**Table 2. Device inventory**
+## B3. Requirements Analysis
 
-| Device | Packet Tracer model | Role |
-|------------------------|------------|--------------------------------|
-| R-CORE | ISR 2911 | Inter-VLAN routing; internal ACLs; SSH management target |
-| R-EDGE | ISR 2911 | Edge router; edge ACL; SSH management target |
-| SW-ACCESS, SW-SERVER, SW-EXT | 2960-24TT | Department, server and external access switches |
-| HR-PC1/2, FIN-PC1/2, IT-PC1/2, SAL-PC1/2 | PC-PT | Two users per department |
-| WEB-SRV, DNS-SRV, HR-SRV, FIN-SRV | Server-PT | Portal (HTTP/HTTPS), DNS, HR app (HTTPS), finance records (FTP, standing in for a database) |
-| EXT-WEB, EXT-HOST | Server-PT, PC-PT | External web site and external client |
+We wrote down which flows the organisation needs, and which it must not have, before writing any ACL. The devices named here are described in B4. Every Stage 2 and Stage 3 rule traces back to one of the requirements in Table 2, and "unnecessary access" in our results means a flow in the forbidden (X) rows that the policy nevertheless allows.
 
-**Table 3. VLAN and addressing plan**
-
-| VLAN / zone | Subnet | Gateway | Hosts |
-|----------|------------|--------------------|--------------------|
-| 10 HR | 192.168.10.0/24 | 192.168.10.1 (R-CORE G0/0.10) | .11, .12 |
-| 20 Finance | 192.168.20.0/24 | 192.168.20.1 (G0/0.20) | .11, .12 |
-| 30 IT | 192.168.30.0/24 | 192.168.30.1 (G0/0.30) | .11, .12 |
-| 40 Sales | 192.168.40.0/24 | 192.168.40.1 (G0/0.40) | .11, .12 |
-| 50 Servers | 192.168.50.0/24 | 192.168.50.1 (G0/1.50) | WEB .10, DNS .20, HR-SRV .30, FIN-SRV .40 |
-| Transit | 10.0.0.0/30 | — | R-CORE .1, R-EDGE .2 |
-| External | 203.0.113.0/24 | 203.0.113.1 (R-EDGE G0/1) | EXT-WEB .10, EXT-HOST .50 |
-
-All internal subnets fall inside 192.168.0.0/16, so a single ACL entry can match "any internal destination". The address plan therefore directly affects how many rules the policy needs.
-
-[PLACEHOLDER: Figure F01, topology screenshot.]
-
-## B3. Communication Requirements
-
-We wrote down which flows the organisation needs, and which it must not have, before writing any ACL. Every Stage 2 and Stage 3 rule traces back to one of the requirements in Table 4, and "unnecessary access" in our results means a flow in the forbidden (X) rows that the policy nevertheless allows.
-
-**Table 4. Required (R) and forbidden (X) flows**
+**Table 2. Required (R) and forbidden (X) flows**
 
 | ID | Source → Destination | Service | Type |
 |----|--------------------------|------------------|--------------------|
@@ -291,7 +280,45 @@ We wrote down which flows the organisation needs, and which it must not have, be
 
 Packet Tracer servers do not offer a database service, so we represent the finance records system with FTP (R4). FTP is only a proxy. It shows how a service that opens a separate data connection interacts with port-based rules; it says nothing about how a real database protocol behaves. Part C discusses what this substitution leaves out.
 
-## B4. Network Configuration and Stage 0 Baseline
+## B4. Network Design
+
+We designed a 19-device network with four departments, a server zone and a small simulated "Internet". It is large enough for policy to grow in interesting ways, but small enough to build and test by hand.
+
+- **R-CORE** routes between the department VLANs (router-on-a-stick) and holds all internal ACLs. We chose a router rather than a multilayer switch because IOS routers in Packet Tracer support extended ACLs and VTY access control fully, and because putting every internal policy decision on one device makes the rules easy to count and audit. The price is a single point of failure, which we accept as a simplification.
+- **R-EDGE** connects the external network and holds the edge ACL. Without it we could not show perimeter filtering, which is where the topic starts.
+- **External addresses** use the RFC 5737 documentation range 203.0.113.0/24 [18], so the simulated Internet does not use real public addresses.
+- **Two PCs per department** let us test traffic inside a VLAN, which never reaches the router and so cannot be filtered by a router ACL.
+
+Routing is static and there is no NAT, which keeps external tests readable; Part C discusses what this leaves out.
+
+**Table 3. Device inventory**
+
+| Device | Packet Tracer model | Role |
+|------------------------|------------|--------------------------------|
+| R-CORE | ISR 2911 | Inter-VLAN routing; internal ACLs; SSH management target |
+| R-EDGE | ISR 2911 | Edge router; edge ACL; SSH management target |
+| SW-ACCESS, SW-SERVER, SW-EXT | 2960-24TT | Department, server and external access switches |
+| HR-PC1/2, FIN-PC1/2, IT-PC1/2, SAL-PC1/2 | PC-PT | Two users per department |
+| WEB-SRV, DNS-SRV, HR-SRV, FIN-SRV | Server-PT | Portal (HTTP/HTTPS), DNS, HR app (HTTPS), finance records (FTP, standing in for a database) |
+| EXT-WEB, EXT-HOST | Server-PT, PC-PT | External web site and external client |
+
+**Table 4. VLAN and addressing plan**
+
+| VLAN / zone | Subnet | Gateway | Hosts |
+|----------|------------|--------------------|--------------------|
+| 10 HR | 192.168.10.0/24 | 192.168.10.1 (R-CORE G0/0.10) | .11, .12 |
+| 20 Finance | 192.168.20.0/24 | 192.168.20.1 (G0/0.20) | .11, .12 |
+| 30 IT | 192.168.30.0/24 | 192.168.30.1 (G0/0.30) | .11, .12 |
+| 40 Sales | 192.168.40.0/24 | 192.168.40.1 (G0/0.40) | .11, .12 |
+| 50 Servers | 192.168.50.0/24 | 192.168.50.1 (G0/1.50) | WEB .10, DNS .20, HR-SRV .30, FIN-SRV .40 |
+| Transit | 10.0.0.0/30 | — | R-CORE .1, R-EDGE .2 |
+| External | 203.0.113.0/24 | 203.0.113.1 (R-EDGE G0/1) | EXT-WEB .10, EXT-HOST .50 |
+
+All internal subnets fall inside 192.168.0.0/16, so a single ACL entry can match "any internal destination". The address plan therefore directly affects how many rules the policy needs.
+
+[PLACEHOLDER: Figure F01, topology screenshot.]
+
+## B5. Implementation I: Network Configuration, Baseline and Pilot
 
 **Configuration.** Stage 0 builds the working network with **no ACLs**: VLANs and 802.1Q trunks, the R-CORE subinterfaces, static routes (a default route on R-CORE and a 192.168.0.0/16 route on R-EDGE), only the intended server services, the DNS records, and SSH on both routers. The configuration scripts are in our project repository (Appendix A).
 
@@ -303,7 +330,7 @@ Packet Tracer servers do not offer a database service, so we represent the finan
 
 [PLACEHOLDER: Figures F02–F04, VLAN, trunk and route outputs and the Stage 0 baseline.]
 
-## B5. Policy Stages
+## B6. Implementation II: Policy Stages
 
 All three stages apply filters at the same seven points:
 
@@ -362,7 +389,7 @@ Stage 1 has 17 entries per enforcement point but 11 per definition, because one 
 
 **FTP data channel (pending pilot P7).** The Stage 3 Finance ACL is expected to permit TCP port 21 from Finance to FIN-SRV, which the required test T04 depends on. That ACL only sees packets sent *by* Finance hosts. In active-mode FTP, the client's replies on the separate data connection go to server port 20; in passive mode, the client opens the data connection to a high server port. Under real IOS behaviour, the Stage 3 "deny internal" entry would block both. We have deliberately not added a data-port rule in advance. If pilot P7 shows that one is needed, the team will choose between adding one minimal entry and moving the finance service to HTTPS, and will record that decision. The forbidden FTP tests (T08, T09 and T16) depend only on the control connection being refused, so the data-channel question does not affect them. If an entry is added, T04, T08 and T16 will be re-run to show that it does not open FTP to anyone else.
 
-## B6. Test Method
+## B7. Testing Procedure
 
 **Test set.** We designed 26 test cases: 12 required, 13 forbidden and one same-VLAN control (T18). To fit the time available for this draft, the team agreed to run the same **17** in Stage 0 and in every stage, in the same order, from the same PCs, after clearing the ACL counters:
 
@@ -434,7 +461,7 @@ Stage 0 is planned as A for every test case. Observed cells for the 17 test case
 | T25 | SAL-PC1 → R-CORE 192.168.40.1 | Telnet | X4, X5 | A\* | D | D | not run | not run | not run | not run |
 | T26 | SAL-PC1 → R-EDGE 10.0.0.2 | Telnet | X4, X5 | A\* | D | D | not run | not run | not run | not run |
 
-## B7. Controlled Misconfiguration Experiments
+## B8. Controlled Misconfiguration Experiments
 
 These experiments recreate two of the problems described in Part A on **copies** of the stage files. We report their results separately and never mix them into the stage metrics. Both change ACLs by sequence number, which needs pilot step P5; P5 is outside this draft's pilot scope, so each script also gives a delete-and-recreate fallback. Each run starts with a "before" capture of the ACL and its counters. [TEAM CHECK: decide whether M1 and M2 will be run for this draft; if not, mark their Observed cells "not run".]
 
@@ -446,7 +473,7 @@ These experiments recreate two of the problems described in Part A on **copies**
 | M2: over-restriction | Copy of **Stage 3** | Remove the DNS permit from ACL-HR-IN; then restore it | Baseline: all three work. After removal: nslookup fails, browsing by IP works, browsing by name fails. After restoring: all three work again. | |
 | M3: misordered permit | — | **Deferred**; not part of this submission | — | — |
 
-## B8. Metrics and Comparative Analysis
+## B9. Results and Discussion
 
 We fixed the metric definitions before collecting any results:
 
@@ -475,7 +502,7 @@ We fixed the metric definitions before collecting any results:
 
 [PLACEHOLDER: discussion of results, to be written after measurement. Assess E1–E4 as supported, partly supported or not supported, using only observed data.]
 
-## B9. Evidence Plan
+## B10. Evidence Plan
 
 **Table 10. Screenshot plan.** Every screenshot will come from our own `.pkt` files. None has been captured yet.
 
@@ -517,21 +544,23 @@ We fixed the metric definitions before collecting any results:
 
 **C.2 What the simulation cannot capture.** Our network has 19 devices and a few dozen rules, while the rule sets studied in [1] and [2] were large and came from several vendors. The simulation leaves out the people and processes that cause policies to drift over time [13]. ACLs decide only on addresses and ports, never on user or device identity [4], [8], [14], so our Stage 3 is not Zero Trust. The `established` keyword is stateless and accepts any TCP segment with the ACK or RST flag set, unlike a stateful firewall. There is no real attack traffic, logging or monitoring, and protocol behaviour follows Packet Tracer's models; how FTP behaves is still pending pilot P7. Our measures describe reachability and policy structure, not administrator error, so they can be compared with [2] but cannot confirm it.
 
-**C.3 Simplifications.** We use FTP in place of a database, which Packet Tracer lacks. There is no NAT or DMZ, routing is static, and a single core router has no redundancy. Server-initiated traffic is neither filtered nor tested. Finally, we run only 17 of the 26 designed test cases, so the Sales exposure metric is not measured, zero-hit counts reflect only the tests run, and R5, X6 and X7 are covered only in part (B6).
+**C.3 Simplifications.** We use FTP in place of a database, which Packet Tracer lacks. There is no NAT or DMZ, routing is static, and a single core router has no redundancy. Server-initiated traffic is neither filtered nor tested. Finally, we run only 17 of the 26 designed test cases, so the Sales exposure metric is not measured, zero-hit counts reflect only the tests run, and R5, X6 and X7 are covered only in part (B7).
 
 \newpage
 
 # Individual Contribution Statement
 
-[PLACEHOLDER: complete from `documentation/contribution.md`. Each member lists their functional role, viva section, main contributions and what they reviewed or verified, then signs.]
+All five members worked on one integrated project; nobody owned a separate topic. Each member led one functional area and reviewed another member's work. Shared by everyone: rebuilding Stage 0 independently, reading the core sources, writing critical-analysis notes and a mock viva.
 
-| Member | Reg. No. | Role(s) | Viva section | Main contributions | Reviewed / verified | Sign. |
-|----------------|----------------|------|------|------------|--------|------|
-| [PLACEHOLDER: name] | [PLACEHOLDER: reg. no.] | | | | | |
-| [PLACEHOLDER: name] | [PLACEHOLDER: reg. no.] | | | | | |
-| [PLACEHOLDER: name] | [PLACEHOLDER: reg. no.] | | | | | |
-| [PLACEHOLDER: name] | [PLACEHOLDER: reg. no.] | | | | | |
-| [PLACEHOLDER: name] | [PLACEHOLDER: reg. no.] | | | | | |
+Names and registration numbers are left blank for the team to fill in. [TEAM CHECK: each member must check that their row describes what they actually did by the submission date, edit it if not, and only then sign. Work listed here that has not happened yet must be removed or changed.]
+
+| Member | Reg. No. | Role | Main contributions | Reviewed / verified | Viva | Sign |
+|----------|---------|------------|--------------------------|----------------|----------|------|
+| [Name] | [Reg. no.] | Network build | Topology and addressing plan; Stage 0 build in Packet Tracer; applying the Stage 1–3 scripts; saving running configurations; pilot steps P3, P7, P8 | Test matrix expectations against the configurations (with Member 2) | B4–B6 | |
+| [Name] | [Reg. no.] | Testing and evidence | Test matrix and pass/fail criteria; running the 17 tests in Stages 0–3; results table; screenshots F01–F19 | Stage scripts against the requirements (with Member 1) | B7, B9 | |
+| [Name] | [Reg. no.] | Literature | Literature search; Part A Sections 1–4 in own words; comparison table (Table 1) | Reference claims for [1], [2], [9]–[13] | Part A | |
+| [Name] | [Reg. no.] | Citations and standards | Reference list and verification record (Appendix B); standards sections ([3]–[7], [15], [16]); Stage 1 terminology check | Citations in Parts A–C; full-text checks | References, Part A §2.1, §2.4 | |
+| [Name] | [Reg. no.] | Integration and QC | Requirements matrix; metric definitions; configuration analysis; misconfiguration experiments M1/M2; Part C; final formatting | Whole report for consistency; numbers against evidence | B1–B3, B8, Part C | |
 
 # Appendix A — Configuration Sources
 

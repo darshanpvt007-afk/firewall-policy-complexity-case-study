@@ -20,7 +20,7 @@ Golden rules:
 | Why Stage 0? | Positive control: every test must succeed with no ACLs, so a later denial is due to the policy, not routing or a stopped service. |
 | What can't your experiment show? | Administrator error rates; identity-aware access (not Zero Trust); real attack traffic; real IOS behaviour beyond what PT models; anything about the 9 tests not run (Part C). |
 
-## P1 — Network build lead (B2, B4)
+## P1 — Network build lead (B4–B6)
 
 | Question | Points |
 |---|---|
@@ -31,7 +31,7 @@ Golden rules:
 | Where are the ACLs applied, and which direction? | AP1 R-EDGE G0/1 in; AP2–AP5 R-CORE G0/0.10–.40 in; AP6–AP7 VTY access-class on both routers. Inbound on user subinterfaces, so server replies aren't filtered. |
 | What happened in Stage 0 / the pilot? | **Your observations** from `results/stage0/` and the decisions log (P3, P7, P8). |
 
-## P2 — Test and evidence lead (B6, results)
+## P2 — Test and evidence lead (B7, B9)
 
 | Question | Points |
 |---|---|
@@ -61,7 +61,7 @@ Golden rules:
 | Is Stage 1 BCP 38 ingress filtering? | No. It only checks the source is inside 192.168.0.0/16. RFC 2827 [7] validates source addresses per arriving network; we don't claim to implement it. |
 | What does NIST SP 800-41 require? | Explicit inbound and outbound policy; allow only needed protocols; deny everything else; keep the policy updated [3]. |
 
-## P5 — Integration editor and QC (B5, B8, Part C)
+## P5 — Integration editor and QC (B1–B3, B8, Part C)
 
 | Question | Points |
 |---|---|

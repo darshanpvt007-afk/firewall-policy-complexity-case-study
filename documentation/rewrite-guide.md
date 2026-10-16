@@ -45,6 +45,6 @@ Paragraph references are to `report/case-study-draft-rev.md`.
 
 These are not rewrites. They are new text that only the team can write:
 
-- B4: Stage 0 and pilot outcomes (P3, P7, P8), from `planning/decisions-log.md`.
-- B8: measured values, and the discussion of E1–E4 from observed data.
-- B9: figure captions describing what each screenshot actually shows.
+- B5: Stage 0 and pilot outcomes (P3, P7, P8), from `planning/decisions-log.md`.
+- B9: measured values, and the discussion of E1–E4 from observed data.
+- B10: figure captions describing what each screenshot actually shows.

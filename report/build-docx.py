@@ -60,19 +60,21 @@ def set_style(styles, style_id, ppr=None, rpr=None):
     return styles[: m.start()] + block + styles[m.end():]
 
 
-# Conventional academic look: Times New Roman throughout, black headings.
-SERIF = '<w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
+# Plain report look: Arial 11 pt throughout, black headings.
+SERIF = '<w:rFonts w:ascii="Arial" w:eastAsia="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
 HEAD_FONT = SERIF
 
 
 def edit_styles(s):
     s = re.sub(r"(<w:rPrDefault>.*?)<w:rFonts [^>]*/>", lambda m: m.group(1) + SERIF, s, count=1, flags=re.S)
+    s = re.sub(r'(<w:rPrDefault>.*?<w:sz w:val=")24(".*?<w:szCs w:val=")24(")',
+               r"\g<1>22\g<2>22\g<3>", s, flags=re.S)
     s = s.replace('<w:spacing w:after="200" />', '<w:spacing w:after="120" w:line="276" w:lineRule="auto" />')
     s = set_style(s, "BodyText", ppr='<w:spacing w:before="0" w:after="120"/><w:jc w:val="both"/>')
     s = set_style(s, "FirstParagraph", ppr='<w:spacing w:before="0" w:after="120"/><w:jc w:val="both"/>')
     s = set_style(s, "Compact", ppr='<w:spacing w:before="0" w:after="30"/>')
-    heads = {"Heading1": (28, 280, 120, "0"), "Heading2": (26, 240, 100, "1"),
-             "Heading3": (24, 200, 80, "2"), "Heading4": (24, 160, 60, "3")}
+    heads = {"Heading1": (28, 280, 120, "0"), "Heading2": (24, 240, 100, "1"),
+             "Heading3": (22, 200, 80, "2"), "Heading4": (22, 160, 60, "3")}
     for sid, (sz, before, after, lvl) in heads.items():
         s = set_style(s, sid,
                       ppr='<w:keepNext/><w:keepLines/><w:spacing w:before="%d" w:after="%d"/><w:outlineLvl w:val="%s"/>'
@@ -80,7 +82,7 @@ def edit_styles(s):
                       rpr='%s<w:b/><w:bCs/>%s<w:color w:val="000000"/><w:sz w:val="%d"/><w:szCs w:val="%d"/>'
                       % (HEAD_FONT, "<w:i/><w:iCs/>" if sid == "Heading4" else "", sz, sz))
     s = set_style(s, "Title", ppr='<w:keepNext/><w:keepLines/><w:spacing w:before="600" w:after="120"/><w:jc w:val="center"/>',
-                  rpr='%s<w:b/><w:bCs/><w:color w:val="000000"/><w:sz w:val="34"/><w:szCs w:val="34"/>' % HEAD_FONT)
+                  rpr='%s<w:b/><w:bCs/><w:color w:val="000000"/><w:sz w:val="32"/><w:szCs w:val="32"/>' % HEAD_FONT)
     s = set_style(s, "Subtitle", ppr='<w:keepNext/><w:keepLines/><w:spacing w:before="0" w:after="360"/><w:jc w:val="center"/>',
                   rpr='%s<w:color w:val="000000"/><w:sz w:val="24"/><w:szCs w:val="24"/>' % HEAD_FONT)
     # Table style: light grid, 9 pt text.
@@ -93,7 +95,7 @@ def edit_styles(s):
         block = block.replace('<w:tblInd w:w="0" w:type="dxa" />', '<w:tblInd w:w="0" w:type="dxa" />' + borders, 1)
         block = block.replace("<w:tblCellMar>", "<w:tblCellMar>", 1)
         if "<w:rPr>" not in block.split("<w:tblStylePr")[0]:
-            block = block.replace("<w:tblPr>", '<w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:tblPr>', 1)
+            block = block.replace("<w:tblPr>", '<w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:tblPr>', 1)
         s = s[: m.start()] + block + s[m.end():]
     # Pandoc default-template quirks: stray "&gt;", spacing after jc, tcBorders after vAlign.
     s = re.sub(r"<w:rPr>.*?</w:rPr>", lambda m: re.sub(r">[^<]*?(&gt;|[^\s<])[^<]*<", "><", m.group(0)), s, flags=re.S)
