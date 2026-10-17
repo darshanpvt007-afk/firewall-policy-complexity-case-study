@@ -292,6 +292,14 @@ FOOTER = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
           '</w:p></w:ftr>')
 
 
+def fix_content_types(s):
+    s = s.replace("</Types>", '<Override PartName="/word/footer1.xml" ContentType='
+                  '"application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>')
+    if 'Extension="png"' not in s:  # figures
+        s = s.replace("<Default ", '<Default Extension="png" ContentType="image/png"/><Default ', 1)
+    return s
+
+
 def main():
     work = tempfile.mkdtemp()
     try:
@@ -303,7 +311,8 @@ def main():
         tmp_md = os.path.join(work, "build.md")
         open(tmp_md, "w", encoding="utf-8").write(md)
         out_tmp = os.path.join(work, "out.docx")
-        subprocess.check_call(["pandoc", tmp_md, "-o", out_tmp, "--reference-doc", ref])
+        subprocess.check_call(["pandoc", tmp_md, "-o", out_tmp, "--reference-doc", ref,
+                               "--resource-path", os.path.dirname(os.path.abspath(SRC))])
 
         rewrite_zip(out_tmp, {
             "word/document.xml": edit_document,
@@ -314,9 +323,7 @@ def main():
             "word/styles.xml": fix_output_styles,
             "word/settings.xml": fix_settings,
             "word/numbering.xml": fix_numbering,
-            "[Content_Types].xml": lambda s: s.replace(
-                "</Types>",
-                '<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>'),
+            "[Content_Types].xml": fix_content_types,
         })
         shutil.copy(out_tmp, OUT)
         print("wrote", OUT)

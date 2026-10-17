@@ -43,7 +43,7 @@ DRAFT STATUS (not rendered; remove before submission)
 10. Screenshot plan
 11. Provisional alignment with the literature
 
-**List of figures.** All figures will be screenshots taken from our own Packet Tracer simulation. **None has been captured yet.** Table 10 lists the planned figures.
+**List of figures.** Figure 1 is a design drawing of the planned topology, made from our addressing plan. All other figures will be screenshots taken from our own Packet Tracer simulation; **none has been captured yet**. Table 10 lists the planned screenshots.
 
 \newpage
 
@@ -316,7 +316,9 @@ Routing is static and there is no NAT, which keeps external tests readable; Part
 
 All internal subnets fall inside 192.168.0.0/16, so a single ACL entry can match "any internal destination". The address plan therefore directly affects how many rules the policy needs.
 
-[PLACEHOLDER: Figure F01, topology screenshot.]
+![Figure 1. Planned network topology and enforcement points (AP1–AP7). Design drawing made from our addressing plan; the Packet Tracer screenshot (F01) will be added after the build.](../figures/design-topology.png){width=6.2in}
+
+[PLACEHOLDER: Figure F01, topology screenshot from our Packet Tracer file.]
 
 ## B5. Implementation I: Network Configuration, Baseline and Pilot
 
@@ -522,6 +524,14 @@ We fixed the metric definitions before collecting any results:
 | F18 | M2: DNS failure | M2 |
 | F19 | Stage comparison chart | All |
 
+## B11. Conclusion of the Case Study
+
+**What is complete.** The case study is fully designed. We have a 19-device network plan, a written list of eight required and seven forbidden flows, three policy stages applied at the same seven enforcement points, 26 designed test cases (17 to be run in this draft), two controlled misconfiguration experiments, and metric definitions fixed before any measurement. The configuration-derived figures in Table 6 already show the cost side of the trade-off we set out to study: from Stage 1 to Stage 3, explicit entries rise from 11 to 40 and order-dependent pairs from 0 to 24, while the edge ACL becomes shorter but stricter.
+
+**What remains.** The security side (how much unnecessary access each stage actually leaves) can only come from running the tests in Packet Tracer. Until then, E1–E4 in B1 remain expectations. [PLACEHOLDER: after the runs, state in three or four sentences whether E1–E4 were supported, partly supported or not supported, citing Table 7 and Table 9.]
+
+**Lesson so far.** Writing the required and forbidden flows down first was what made the comparison possible: without Table 2 there would be no fixed definition of "unnecessary" access to measure each stage against.
+
 \newpage
 
 # PART C — Alignment and Limitations Note (provisional)
@@ -580,6 +590,276 @@ Our configuration scripts are in the project repository. **We have not yet teste
 | `packet-tracer/results/results-template.csv` | Results table to be filled in |
 
 [PLACEHOLDER: replace with the saved `show running-config` outputs after the build.]
+
+# Appendix C — Policy Configuration Scripts (Stages 1–3)
+
+These are the ACL parts of our configuration scripts, as planned. They have **not yet been applied in Packet Tracer**; after the build they will be replaced by the saved `show running-config` output. Base configuration (Stage 0) is in the repository. Each stage is applied on top of the previous one, so an ACL not listed under a stage is carried over unchanged (for example, the Stage 1 edge ACL stays in place in Stage 2).
+
+## Stage 1
+
+**R-EDGE**
+
+```
+ip access-list extended ACL-EDGE-IN
+ remark R8 public portal
+ permit tcp any host 192.168.50.10 eq www
+ permit tcp any host 192.168.50.10 eq 443
+ remark R7 return traffic - broad (any source port)
+ permit tcp any 192.168.0.0 0.0.255.255 established
+ remark Broad ICMP returns
+ permit icmp any 192.168.0.0 0.0.255.255 echo-reply
+ permit icmp any 192.168.0.0 0.0.255.255 unreachable
+ permit icmp any 192.168.0.0 0.0.255.255 time-exceeded
+ remark X7 explicit deny for counters
+ deny ip any any
+```
+
+```
+interface GigabitEthernet0/1
+ ip access-group ACL-EDGE-IN in
+```
+
+```
+ip access-list standard ACL-VTY
+ remark Broad - any internal source may reach the login prompt
+ permit 192.168.0.0 0.0.255.255
+```
+
+```
+line vty 0 15
+ access-class ACL-VTY in
+```
+
+**R-CORE**
+
+```
+ip access-list extended ACL-USERS-IN
+ remark Broad - any internal source to any destination
+ permit ip 192.168.0.0 0.0.255.255 any
+ remark Catch-all: sources outside 192.168.0.0/16 (not BCP 38 validation); explicit for counters
+ deny ip any any
+```
+
+```
+interface GigabitEthernet0/0.10
+ ip access-group ACL-USERS-IN in
+interface GigabitEthernet0/0.20
+ ip access-group ACL-USERS-IN in
+interface GigabitEthernet0/0.30
+ ip access-group ACL-USERS-IN in
+interface GigabitEthernet0/0.40
+ ip access-group ACL-USERS-IN in
+```
+
+```
+ip access-list standard ACL-VTY
+ remark Broad - any internal source may reach the login prompt
+ permit 192.168.0.0 0.0.255.255
+```
+
+```
+line vty 0 15
+ access-class ACL-VTY in
+```
+
+## Stage 2
+
+**R-EDGE**
+
+```
+line vty 0 15
+ no access-class ACL-VTY in
+```
+
+```
+ip access-list standard ACL-VTY
+ remark R5 X4 - IT only
+ permit 192.168.30.0 0.0.0.255
+```
+
+```
+line vty 0 15
+ access-class ACL-VTY in
+```
+
+**R-CORE**
+
+```
+ip access-list extended ACL-HR-IN
+ remark R1 R2 R3 - whole server zone
+ permit ip 192.168.10.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark X1 X4 - other internal destinations
+ deny ip 192.168.10.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 - outside
+ permit ip 192.168.10.0 0.0.0.255 any
+ deny ip any any
+```
+
+```
+ip access-list extended ACL-FIN-IN
+ remark R1 R2 R4 - whole server zone
+ permit ip 192.168.20.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark X1 X4
+ deny ip 192.168.20.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7
+ permit ip 192.168.20.0 0.0.0.255 any
+ deny ip any any
+```
+
+```
+ip access-list extended ACL-IT-IN
+ remark R1 R2 R6 - whole server zone
+ permit ip 192.168.30.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark R5 - R-CORE management address
+ permit ip 192.168.30.0 0.0.0.255 host 192.168.30.1
+ remark X1
+ deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 and R5 (R-EDGE 10.0.0.2)
+ permit ip 192.168.30.0 0.0.0.255 any
+ deny ip any any
+```
+
+```
+ip access-list extended ACL-SAL-IN
+ remark R1 R2 - whole server zone
+ permit ip 192.168.40.0 0.0.0.255 192.168.50.0 0.0.0.255
+ remark X1 X4
+ deny ip 192.168.40.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7
+ permit ip 192.168.40.0 0.0.0.255 any
+ deny ip any any
+```
+
+```
+interface GigabitEthernet0/0.10
+ ip access-group ACL-HR-IN in
+interface GigabitEthernet0/0.20
+ ip access-group ACL-FIN-IN in
+interface GigabitEthernet0/0.30
+ ip access-group ACL-IT-IN in
+interface GigabitEthernet0/0.40
+ ip access-group ACL-SAL-IN in
+line vty 0 15
+ no access-class ACL-VTY in
+```
+
+```
+ip access-list standard ACL-VTY
+ remark R5 X4 - IT only
+ permit 192.168.30.0 0.0.0.255
+```
+
+```
+line vty 0 15
+ access-class ACL-VTY in
+```
+
+## Stage 3
+
+**R-EDGE**
+
+```
+ip access-list extended ACL-EDGE-IN
+ remark R8 public portal
+ permit tcp any host 192.168.50.10 eq www
+ permit tcp any host 192.168.50.10 eq 443
+ remark R7 return traffic - web source ports only
+ permit tcp any eq www 192.168.0.0 0.0.255.255 established
+ permit tcp any eq 443 192.168.0.0 0.0.255.255 established
+ remark X7
+ deny ip any any
+```
+
+```
+interface GigabitEthernet0/1
+ ip access-group ACL-EDGE-IN in
+line vty 0 15
+ transport input ssh
+```
+
+**R-CORE**
+
+```
+ip access-list extended ACL-HR-IN
+ remark R1 DNS
+ permit udp 192.168.10.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark R3 HR application
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.50.30 eq 443
+ remark X1-X6 - must stay ABOVE the R7 permits
+ deny ip 192.168.10.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.10.0 0.0.0.255 any eq www
+ permit tcp 192.168.10.0 0.0.0.255 any eq 443
+ deny ip any any
+```
+
+```
+ip access-list extended ACL-FIN-IN
+ remark R1 DNS
+ permit udp 192.168.20.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark R4 finance records - FTP control only. No data-port entry unless pilot P7 requires it
+ permit tcp 192.168.20.0 0.0.0.255 host 192.168.50.40 eq ftp
+ remark X1-X6 - must stay ABOVE the R7 permits
+ deny ip 192.168.20.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.20.0 0.0.0.255 any eq www
+ permit tcp 192.168.20.0 0.0.0.255 any eq 443
+ deny ip any any
+```
+
+```
+ip access-list extended ACL-IT-IN
+ remark R1 DNS
+ permit udp 192.168.30.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.30.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.30.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark R6 troubleshooting ping to servers
+ permit icmp 192.168.30.0 0.0.0.255 192.168.50.0 0.0.0.255 echo
+ remark R5 SSH to R-CORE and R-EDGE
+ permit tcp 192.168.30.0 0.0.0.255 host 192.168.30.1 eq 22
+ permit tcp 192.168.30.0 0.0.0.255 host 10.0.0.2 eq 22
+ remark X1 X2 X3 X5 - must stay ABOVE the R7 permits
+ deny ip 192.168.30.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.30.0 0.0.0.255 any eq www
+ permit tcp 192.168.30.0 0.0.0.255 any eq 443
+ deny ip any any
+```
+
+```
+ip access-list extended ACL-SAL-IN
+ remark R1 DNS
+ permit udp 192.168.40.0 0.0.0.255 host 192.168.50.20 eq domain
+ remark R2 portal
+ permit tcp 192.168.40.0 0.0.0.255 host 192.168.50.10 eq www
+ permit tcp 192.168.40.0 0.0.0.255 host 192.168.50.10 eq 443
+ remark X1-X6 - must stay ABOVE the R7 permits
+ deny ip 192.168.40.0 0.0.0.255 192.168.0.0 0.0.255.255
+ remark R7 Internet web
+ permit tcp 192.168.40.0 0.0.0.255 any eq www
+ permit tcp 192.168.40.0 0.0.0.255 any eq 443
+ deny ip any any
+```
+
+```
+interface GigabitEthernet0/0.10
+ ip access-group ACL-HR-IN in
+interface GigabitEthernet0/0.20
+ ip access-group ACL-FIN-IN in
+interface GigabitEthernet0/0.30
+ ip access-group ACL-IT-IN in
+interface GigabitEthernet0/0.40
+ ip access-group ACL-SAL-IN in
+line vty 0 15
+ transport input ssh
+```
 
 # Appendix B — Reference Verification Record
 
