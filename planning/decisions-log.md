@@ -26,6 +26,7 @@ Record team decisions and Packet Tracer pilot findings here, newest entry at the
 | 2026-10-09 | PROPOSAL (team decision needed) | Coverage gaps | R5 tested only towards R-CORE; X6 only with ICMP; X7 only against FIN-SRV. Proposed: re-include T20, T21, T22; add T27 (external → HR-SRV HTTPS), T28 (HR → WEB-SRV TCP 23), T29 (name-based portal access). All **not run** until decided. If added, they must run in all stages including Stage 0. | coverage-matrix.md §2; test-matrix.md §2A | Claude |
 | 2026-10-09 | DEPENDENCY | M1 and M2 need pilot P5 | Both use sequence-number editing. P5 is outside the draft pilot scope, so M1/M2 stay **not run** unless P5 is run or the delete-and-recreate fallback is used. | configs/misconfig/*.txt | Claude |
 | 2026-10-09 | CORRECTION | T22 target | T22 tests IT SSH to **R-EDGE** (10.0.0.2); T06 tests R-CORE. A note in the revision brief describing T22 otherwise was not applied. | test-matrix.md §2 | Claude |
+| 2026-10-18 | TEAM DECISION | Role assignment | P1 network build: Ram; P2 testing and evidence: Darshan; P3 literature: Aadhavan; P4 citations and standards: Naveen; P5 integration and QC: Himenesh. Full names and registration numbers still to be supplied. | Team message, 2026-10-18 | Claude (on the team's instruction) |
 | | TEAM DECISION | Packet Tracer version used by all members | | | |
 | | TEAM DECISION | Team name, members, registration numbers (title page) | | | |
 | | RESULT | Stage 0 baseline (17 test cases) passed | Pending — needs the S0 rows of the test matrix and results/stage0/ | | |

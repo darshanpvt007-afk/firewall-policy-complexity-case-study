@@ -17,11 +17,11 @@ DRAFT STATUS (not rendered; remove before submission)
 | **Course** | BACSE203 Computer Networks, Fall 2026, School of Computer Science and Engineering, VIT Vellore |
 | **Topic** | 17. Firewall Policy Complexity: From Simple ACLs to Least Privilege Network Access |
 | **Team name** | [PLACEHOLDER: team name] |
-| **Member 1** | [PLACEHOLDER: name — registration number] |
-| **Member 2** | [PLACEHOLDER: name — registration number] |
-| **Member 3** | [PLACEHOLDER: name — registration number] |
-| **Member 4** | [PLACEHOLDER: name — registration number] |
-| **Member 5** | [PLACEHOLDER: name — registration number] |
+| **Member 1** | Ram — [PLACEHOLDER: registration number] |
+| **Member 2** | Darshan — [PLACEHOLDER: registration number] |
+| **Member 3** | Aadhavan — [PLACEHOLDER: registration number] |
+| **Member 4** | Naveen — [PLACEHOLDER: registration number] |
+| **Member 5** | Himenesh — [PLACEHOLDER: registration number] |
 | **Faculty** | [PLACEHOLDER: faculty name] |
 | **Submission date** | [PLACEHOLDER: date] |
 
@@ -562,15 +562,15 @@ We fixed the metric definitions before collecting any results:
 
 All five members worked on one integrated project; nobody owned a separate topic. Each member led one functional area and reviewed another member's work. Shared by everyone: rebuilding Stage 0 independently, reading the core sources, writing critical-analysis notes and a mock viva.
 
-Names and registration numbers are left blank for the team to fill in. [TEAM CHECK: each member must check that their row describes what they actually did by the submission date, edit it if not, and only then sign. Work listed here that has not happened yet must be removed or changed.]
+Registration numbers are left blank for the team to fill in; full names to be confirmed. [TEAM CHECK: each member must check that their row describes what they actually did by the submission date, edit it if not, and only then sign. Work listed here that has not happened yet must be removed or changed.]
 
 | Member | Reg. No. | Role | Main contributions | Reviewed / verified | Viva | Sign |
 |----------|---------|------------|--------------------------|----------------|----------|------|
-| [Name] | [Reg. no.] | Network build | Topology and addressing plan; Stage 0 build in Packet Tracer; applying the Stage 1–3 scripts; saving running configurations; pilot steps P3, P7, P8 | Test matrix expectations against the configurations (with Member 2) | B4–B6 | |
-| [Name] | [Reg. no.] | Testing and evidence | Test matrix and pass/fail criteria; running the 17 tests in Stages 0–3; results table; screenshots F01–F19 | Stage scripts against the requirements (with Member 1) | B7, B9 | |
-| [Name] | [Reg. no.] | Literature | Literature search; Part A Sections 1–4 in own words; comparison table (Table 1) | Reference claims for [1], [2], [9]–[13] | Part A | |
-| [Name] | [Reg. no.] | Citations and standards | Reference list and verification record (Appendix B); standards sections ([3]–[7], [15], [16]); Stage 1 terminology check | Citations in Parts A–C; full-text checks | References, Part A §2.1, §2.4 | |
-| [Name] | [Reg. no.] | Integration and QC | Requirements matrix; metric definitions; configuration analysis; misconfiguration experiments M1/M2; Part C; final formatting | Whole report for consistency; numbers against evidence | B1–B3, B8, Part C | |
+| Ram | [Reg. no.] | Network build | Topology and addressing plan; Stage 0 build in Packet Tracer; applying the Stage 1–3 scripts; saving running configurations; pilot steps P3, P7, P8 | Test matrix expectations against the configurations (with Darshan) | B4–B6 | |
+| Darshan | [Reg. no.] | Testing and evidence | Test matrix and pass/fail criteria; running the 17 tests in Stages 0–3; results table; screenshots F01–F19 | Stage scripts against the requirements (with Ram) | B7, B9 | |
+| Aadhavan | [Reg. no.] | Literature | Literature search; Part A Sections 1–4 in own words; comparison table (Table 1) | Reference claims for [1], [2], [9]–[13] | Part A | |
+| Naveen | [Reg. no.] | Citations and standards | Reference list and verification record (Appendix B); standards sections ([3]–[7], [15], [16]); Stage 1 terminology check | Citations in Parts A–C; full-text checks | References, Part A §2.1, §2.4 | |
+| Himenesh | [Reg. no.] | Integration and QC | Requirements matrix; metric definitions; configuration analysis; misconfiguration experiments M1/M2; Part C; final formatting | Whole report for consistency; numbers against evidence | B1–B3, B8, Part C | |
 
 # Appendix A — Configuration Sources
 
