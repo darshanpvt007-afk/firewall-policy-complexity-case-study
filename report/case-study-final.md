@@ -14,7 +14,7 @@ subtitle: "BACSE203 Computer Networks — Fall 2026 Case Study (Topic 17)"
 | **Member 3** | M B Adavan — 25BCE0063 |
 | **Member 4** | Naveen V S — 25BCE0059 |
 | **Member 5** | Himaneesh S — 25BAI0007 |
-| **Faculty** |  |
+| **Faculty** | Dr. Thiruvenkadam |
 | **Submission date** | 24 October 2026 |
 
 **Status at submission.** Parts A, B and C are complete. The Cisco Packet Tracer simulation was run for Stages 0–3. Where a test has no screenshot it is marked *n/e* (not evidenced) and is left out of every count; nothing is reported that the screenshots do not show.
