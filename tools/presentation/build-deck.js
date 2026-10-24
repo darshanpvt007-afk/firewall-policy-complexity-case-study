@@ -539,23 +539,31 @@ const refs = [
   ["[3] K. Scarfone, P. Hoffman, \"Guidelines on firewalls and firewall policy,\" NIST SP 800-41 Rev. 1, 2009.", "https://doi.org/10.6028/NIST.SP.800-41r1"],
   ["[4] S. Rose et al., \"Zero trust architecture,\" NIST SP 800-207, 2020.", "https://doi.org/10.6028/NIST.SP.800-207"],
   ["[5] J. H. Saltzer, M. D. Schroeder, \"The protection of information in computer systems,\" Proc. IEEE, 1975 (full text).", "https://www.cs.virginia.edu/~evans/cs551/saltzer/"],
+  ["[6] N. Freed, \"Behavior of and requirements for Internet firewalls,\" RFC 2979, 2000.", "https://www.rfc-editor.org/rfc/rfc2979"],
+  ["[7] P. Ferguson, D. Senie, \"Network ingress filtering,\" BCP 38 / RFC 2827, 2000.", "https://doi.org/10.17487/RFC2827"],
+  ["[8] R. Ward, B. Beyer, \"BeyondCorp: A new approach to enterprise security,\" ;login:, 39(6), 2014.", "https://www.usenix.org/publications/login/dec14/ward"],
   ["[9] E. Al-Shaer, H. Hamed, \"Discovery of policy anomalies in distributed firewalls,\" IEEE INFOCOM, 2004.", "https://pure.kfupm.edu.sa/en/publications/discovery-of-policy-anomalies-in-distributed-firewalls/"],
   ["[10] E. Al-Shaer et al., \"Conflict classification and analysis of distributed firewall policies,\" IEEE JSAC, 2005.", "https://doi.org/10.1109/JSAC.2005.854119"],
   ["[11] L. Yuan et al., \"FIREMAN: A toolkit for firewall modeling and analysis,\" IEEE S&P, 2006.", "https://doi.org/10.1109/SP.2006.16"],
+  ["[12] M. G. Gouda, A. X. Liu, \"Structured firewall design,\" Computer Networks, 51(4), 2007.", "https://ftp.math.utah.edu/pub/tex/bib/idx/compnetamsterdam2000/51/4/1106_1120.html"],
   ["[13] A. Voronkov et al., \"Systematic literature review on usability of firewall configuration,\" ACM CSUR, 2017.", "https://doi.org/10.1145/3130876"],
+  ["[14] N. Syed et al., \"Zero trust architecture (ZTA): A comprehensive survey,\" IEEE Access, 2022.", "https://ieeexplore.ieee.org/document/9773102"],
   ["[15] R. Chandramouli, \"Guide to a secure enterprise network landscape,\" NIST SP 800-215, 2022.", "https://doi.org/10.6028/NIST.SP.800-215"],
+  ["[16] CISA, \"Microsegmentation in zero trust, part one: Introduction and planning,\" 2025.", "https://www.cisa.gov/resources-tools/resources/microsegmentation-zero-trust-part-one-introduction-and-planning"],
+  ["[17] Y. Bartal et al., \"Firmato: A novel firewall management toolkit,\" ACM TOCS, 2004.", "https://doi.org/10.1145/1035582.1035583"],
+  ["[18] J. Arkko et al., \"IPv4 address blocks reserved for documentation,\" RFC 5737, 2010.", "https://www.rfc-editor.org/rfc/rfc5737"],
 ];
-[refs.slice(0, 5), refs.slice(5)].forEach((part, k) => {
+[refs.slice(0, 6), refs.slice(6, 12), refs.slice(12)].forEach((part, k) => {
   s = add("Content", "Part C and conclusion");
-  s.addText("Key references (" + (k + 1) + " of 2)", { placeholder: "title" });
+  s.addText("References (" + (k + 1) + " of 3)", { placeholder: "title" });
   part.forEach(([cite, url], i) => {
-    const y = 1.45 + i * 1.02;
-    card(s, 0.6, y, 12.1, 0.88);
-    s.addText(cite, T({ x: 0.85, y: y + 0.08, w: 11.6, h: 0.4, fontSize: 15, color: C.text1 }));
+    const y = 1.35 + i * 0.88;
+    card(s, 0.6, y, 12.1, 0.78);
+    s.addText(cite, T({ x: 0.85, y: y + 0.06, w: 11.6, h: 0.36, fontSize: 14, color: C.text1 }));
     s.addText([{ text: url, options: { hyperlink: { url: url, tooltip: "Open source" }, color: C.accent5, underline: { style: "sng" } } }],
-      T({ x: 0.85, y: y + 0.48, w: 11.6, h: 0.32, fontSize: 13 }));
+      T({ x: 0.85, y: y + 0.43, w: 11.6, h: 0.3, fontSize: 12 }));
   });
-  if (k === 1) s.addText("Full list of 18 references in the report (IEEE style). Links: DOI where available, otherwise publisher, repository or full-text page.", T({ x: 0.6, y: 6.6, w: 12.1, h: 0.4, fontSize: 12, italic: true, color: C.accent4 }));
+  if (k === 2) s.addText("All 18 references, as in the report (IEEE style). Links: DOI where available, otherwise publisher, repository or full-text page.", T({ x: 0.6, y: 6.75, w: 11.6, h: 0.35, fontSize: 12, italic: true, color: C.accent4 }));
   s.addNotes("Links are clickable in slideshow mode.");
 });
 
