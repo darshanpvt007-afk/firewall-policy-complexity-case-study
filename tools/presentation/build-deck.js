@@ -477,7 +477,7 @@ s = add("Content", "Part C and conclusion");
 s.addText("Limitations", { placeholder: "title" });
 const lim = [
   ["Small scale", "19 devices and 40 rules, versus large real rule sets"],
-  ["Evidence gaps", "Screenshots for 17 tests in Stage 0, 4 in Stage 1, 14 in Stage 2, 7 in Stage 3"],
+  ["Evidence gaps", "Screenshots for 17 tests in Stage 0, 4 in Stage 1, 14 in Stage 2, 8 in Stage 3"],
   ["Not Zero Trust", "ACLs see addresses and ports, never user or device identity"],
   ["Simulator models", "FTP stands in for a database; no NAT, logging or attack traffic"],
   ["Not run", "Misconfiguration experiments M1 and M2; zero-hit and line-change metrics"],

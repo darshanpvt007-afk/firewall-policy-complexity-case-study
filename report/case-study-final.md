@@ -15,7 +15,7 @@ subtitle: "BACSE203 Computer Networks — Fall 2026 Case Study (Topic 17)"
 | **Member 4** | Naveen V S — 25BCE0059 |
 | **Member 5** | Himaneesh S — 25BAI0007 |
 | **Faculty** |  |
-| **Submission date** | 20 October 2026 |
+| **Submission date** | 24 October 2026 |
 
 **Status at submission.** Parts A, B and C are complete. The Cisco Packet Tracer simulation was run for Stages 0–3. Where a test has no screenshot it is marked *n/e* (not evidenced) and is left out of every count; nothing is reported that the screenshots do not show.
 
@@ -554,7 +554,7 @@ The main lesson is that the security gain and the management cost are real, and 
 
 **C.2 What the simulation cannot capture.** Our network has 19 devices and a few dozen rules, while the rule sets studied in [1] and [2] were large and came from several vendors. The simulation leaves out the people and processes that cause policies to drift over time [13]. ACLs decide only on addresses and ports, never on user or device identity [4], [8], [14], so our Stage 3 is not Zero Trust. The `established` keyword is stateless and accepts any TCP segment with the ACK or RST flag set, unlike a stateful firewall. There is no real attack traffic, logging or monitoring, and protocol behaviour follows Packet Tracer's models; our FTP result reflects Packet Tracer's FTP model. Our measures describe reachability and policy structure, not administrator error, so they can be compared with [2] but cannot confirm it.
 
-**C.3 Simplifications.** We use FTP in place of a database, which Packet Tracer lacks. There is no NAT or DMZ, routing is static, and a single core router has no redundancy. Server-initiated traffic is neither filtered nor tested. We ran 17 of the 26 designed test cases, and screenshots exist for all 17 in Stage 0, 4 in Stage 1, 14 in Stage 2 and 7 in Stage 3 (plus two extra tests); counts therefore describe the evidenced tests only. The misconfiguration experiments were not run, and zero-hit entries and configuration-line changes were not measured.
+**C.3 Simplifications.** We use FTP in place of a database, which Packet Tracer lacks. There is no NAT or DMZ, routing is static, and a single core router has no redundancy. Server-initiated traffic is neither filtered nor tested. We ran 17 of the 26 designed test cases, and screenshots exist for all 17 in Stage 0, 4 in Stage 1, 14 in Stage 2 and 8 in Stage 3 (plus two extra tests); counts therefore describe the evidenced tests only. The misconfiguration experiments were not run, and zero-hit entries and configuration-line changes were not measured.
 
 \newpage
 
