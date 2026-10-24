@@ -103,7 +103,7 @@ for (const [nm, c] of ICON_USES) await prepIcon(nm, c);
 pres.addSection({ title: "Introduction" });
 let s = add("Title dark", "Introduction");
 s.addText("Firewall Policy Complexity: From Simple ACLs to Least Privilege Network Access", { placeholder: "title" });
-s.addText("BACSE203 Computer Networks · Fall 2026 · Case Study (Topic 17)", { placeholder: "body" });
+s.addText("Team Ping of 5 · BACSE203 Computer Networks · Fall 2026 · Case Study (Topic 17)", { placeholder: "body" });
 const team = [["Ramsrivathsan R", "25BCE2111"], ["S Darshan", "25BCE2883"], ["M B Adavan", "25BCE0063"], ["Naveen V S", "25BCE0059"], ["Himaneesh S", "25BAI0007"]];
 team.forEach(([nm, reg], i) => {
   const x = 0.7 + i * 2.42;

@@ -8,7 +8,7 @@ subtitle: "BACSE203 Computer Networks — Fall 2026 Case Study (Topic 17)"
 |------------------|--------------------------------------------------------------------|
 | **Course** | BACSE203 Computer Networks, Fall 2026, School of Computer Science and Engineering, VIT Vellore |
 | **Topic** | 17. Firewall Policy Complexity: From Simple ACLs to Least Privilege Network Access |
-| **Team name** |  |
+| **Team name** | Ping of 5 |
 | **Member 1** | Ramsrivathsan R — 25BCE2111 |
 | **Member 2** | S Darshan — 25BCE2883 |
 | **Member 3** | M B Adavan — 25BCE0063 |
