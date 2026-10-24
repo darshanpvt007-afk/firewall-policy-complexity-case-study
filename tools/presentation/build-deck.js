@@ -93,6 +93,22 @@ pill(s, 0.7, 6.55, "PERMIT", "permit"); pill(s, 1.98, 6.55, "DENY", "deny");
 s.addText("School of Computer Science and Engineering, VIT Vellore", T({ x: 3.4, y: 6.55, w: 8, h: 0.36, fontSize: 13, color: C.accent6, valign: "middle" }));
 s.addNotes("Introduce the team and the topic: how firewall/ACL policy changes as we move from simple, broad rules to least-privilege rules, and what that costs in complexity.");
 
+
+// ---------- Agenda ----------
+s = add("Content", "Introduction");
+s.addText("Agenda", { placeholder: "title" });
+const agenda = [["Part A", "Review paper", "Problem, five literature themes, research gaps"], ["Part B", "Design", "Requirements, network, three policies, test method"], ["Part B", "Results", "Stage-by-stage evidence, metrics, key findings"], ["Part C", "Alignment", "Comparison with the literature, limitations, future work"]];
+agenda.forEach(([p, h, d], i) => {
+  const y = 1.5 + i * 1.3;
+  s.addShape(pres.shapes.OVAL, { x: 0.8, y: y + 0.12, w: 0.8, h: 0.8, fill: { color: C.text2 }, line: { color: C.text2 }, objectName: "ag" + i });
+  s.addText(String(i + 1), T({ x: 0.8, y: y + 0.12, w: 0.8, h: 0.8, fontSize: 24, bold: true, color: C.background1, align: "center", valign: "middle", fontFace: "Cambria" }));
+  card(s, 1.9, y, 10.8, 1.05);
+  s.addText(p, T({ x: 2.2, y, w: 1.4, h: 1.05, fontSize: 14, color: C.accent3, bold: true, valign: "middle" }));
+  s.addText(h, T({ x: 3.6, y, w: 2.6, h: 1.05, fontSize: 20, bold: true, valign: "middle" }));
+  s.addText(d, T({ x: 6.3, y, w: 6.2, h: 1.05, fontSize: 16, color: C.text2, valign: "middle" }));
+});
+s.addNotes("Walk through the structure: the assignment has a review paper (Part A), a Packet Tracer case study (Part B) and an alignment note (Part C).");
+
 // ---------- 2. Problem & RQ ----------
 s = add("Content", "Introduction");
 s.addText("The problem we studied", { placeholder: "title" });
@@ -110,6 +126,28 @@ s.addText("How does refining network access policy from broad, to department-lev
 pill(s, 7.1, 5.6, "SECURITY", "permit"); pill(s, 8.4, 5.6, "COST", "deny");
 s.addText("measured together, on one network", T({ x: 9.7, y: 5.6, w: 3, h: 0.36, fontSize: 14, color: C.accent4, valign: "middle" }));
 s.addNotes("The gap: studies rarely measure the security gained and the management cost on the same policy as it is refined. We do that on a small simulated enterprise.");
+
+
+// ---------- Objectives ----------
+s = add("Content", "Introduction");
+s.addText("Objectives", { placeholder: "title" });
+const objs = [
+  ["Build", "A multi-department network in Packet Tracer; confirm every test flow works with no ACLs"],
+  ["Specify", "Write the required and forbidden flows before writing any rule"],
+  ["Implement", "Three policy stages at the same seven enforcement points"],
+  ["Measure", "Unnecessary access left, and policy size, specificity and rule-order dependence"],
+  ["Stress", "Design two typical policy mistakes (shadowed rule, missing DNS rule)"],
+  ["Compare", "Relate the results to the literature reviewed in Part A"],
+];
+objs.forEach(([h, d], i) => {
+  const col = i % 2, row = Math.floor(i / 2);
+  const x = 0.6 + col * 6.15, y = 1.5 + row * 1.7;
+  card(s, x, y, 5.95, 1.5);
+  s.addText(String(i + 1), T({ x: x + 0.3, y, w: 0.6, h: 1.5, fontSize: 30, bold: true, color: C.accent3, fontFace: "Cambria", valign: "middle" }));
+  s.addText(h, T({ x: x + 1.0, y: y + 0.2, w: 4.7, h: 0.45, fontSize: 19, bold: true }));
+  s.addText(d, T({ x: x + 1.0, y: y + 0.65, w: 4.7, h: 0.8, fontSize: 14, color: C.text2 }));
+});
+s.addNotes("Objective 5 (the misconfiguration experiments) was designed but not run in the time available; we say so on the limitations slide.");
 
 // ---------- 3. Literature themes ----------
 pres.addSection({ title: "Part A: Literature" });
@@ -175,6 +213,20 @@ facts.forEach(([a, b], i) => {
 });
 s.addNotes("Router-on-a-stick core router holds all internal ACLs; edge router holds the Internet filter. Same seven enforcement points in every stage, only the rules change.");
 
+
+// ---------- Requirements ----------
+s = add("Content", "Part B: Design");
+s.addText("Requirements written before any rule", { placeholder: "title" });
+const rq = [["R1", "All departments → DNS server (UDP 53)"], ["R2", "All departments → web portal (HTTP/HTTPS)"], ["R3", "HR → HR records server (HTTPS)"], ["R4", "Finance → finance server (FTP)"], ["R5", "IT → both routers (SSH)"], ["R6", "IT → servers (ping)"], ["R7", "All departments → Internet web"], ["R8", "Internet → public web portal"]];
+const xq = [["X1", "Department → other department"], ["X2", "Non-HR → HR records server"], ["X3", "Non-Finance → finance server"], ["X4", "Non-IT → router management"], ["X5", "Anyone → routers by Telnet"], ["X6", "Non-IT → servers by ping / unused ports"], ["X7", "Internet → anything except the portal"]];
+pill(s, 0.6, 1.45, "REQUIRED", "permit");
+pill(s, 6.85, 1.45, "FORBIDDEN", "deny");
+const reqRows = (arr, col) => arr.map(([k, v]) => [{ text: k, options: { bold: true, color: col } }, v]);
+s.addTable(reqRows(rq, HEX.permit), { x: 0.6, y: 1.95, w: 5.95, colW: [0.7, 5.25], fontSize: 14, fontFace: "Calibri", color: HEX.dark, border: { type: "solid", pt: 0.5, color: HEX.grid }, rowH: 0.52, valign: "middle", margin: [0.04, 0.1, 0.04, 0.1] });
+s.addTable(reqRows(xq, HEX.deny), { x: 6.85, y: 1.95, w: 5.85, colW: [0.7, 5.15], fontSize: 14, fontFace: "Calibri", color: HEX.dark, border: { type: "solid", pt: 0.5, color: HEX.grid }, rowH: 0.52, valign: "middle", margin: [0.04, 0.1, 0.04, 0.1] });
+s.addText("U1: PC-to-PC traffic inside one VLAN cannot be filtered by a router ACL. \"Unnecessary access\" = any X flow the policy still allows.", T({ x: 6.85, y: 5.85, w: 5.85, h: 0.8, fontSize: 13, italic: true, color: C.accent4 }));
+s.addNotes("Every Stage 2 and Stage 3 rule traces back to one of these requirements. FTP stands in for a database because Packet Tracer servers have no database service.");
+
 // ---------- 6. Stages ----------
 s = add("Content", "Part B: Design");
 s.addText("Three policies of increasing precision", { placeholder: "title" });
@@ -194,6 +246,35 @@ stages.forEach(([st, nm, d, r, col], i) => {
 });
 s.addText("Stage 0 (no ACLs) is the positive control: every test must work before any rule is applied.", T({ x: 0.6, y: 6.35, w: 12.1, h: 0.45, fontSize: 15, italic: true, color: C.accent4 }));
 s.addNotes("Each stage is applied on top of the previous one in the same Packet Tracer network. Rule counts are as configured (one Stage 1 edge line was rejected by Packet Tracer).");
+
+
+// ---------- ACL example ----------
+s = add("Content", "Part B: Design");
+s.addText("What a least-privilege ACL looks like", { placeholder: "title" });
+card(s, 0.6, 1.45, 7.6, 5.0, HEX.dark);
+const aclLines = [
+  ["ip access-list extended ACL-HR-IN", null],
+  [" permit udp HR host DNS-SRV eq domain", "R1"],
+  [" permit tcp HR host WEB-SRV eq www", "R2"],
+  [" permit tcp HR host WEB-SRV eq 443", "R2"],
+  [" permit tcp HR host HR-SRV eq 443", "R3"],
+  [" deny   ip  HR 192.168.0.0/16", "X1–X6"],
+  [" permit tcp HR any eq www", "R7"],
+  [" permit tcp HR any eq 443", "R7"],
+  [" deny   ip  any any", null],
+];
+s.addText(aclLines.map(([l, r], i) => ({ text: l, options: { breakLine: i < aclLines.length - 1, color: l.includes("deny") ? "F1948A" : (l.startsWith("ip") ? "E09F3E" : "D5F5E3") } })),
+  T({ x: 0.9, y: 1.75, w: 5.6, h: 4.4, fontSize: 15, fontFace: "Courier New", paraSpaceAfter: 6 }));
+s.addText(aclLines.map(([l, r], i) => ({ text: r || " ", options: { breakLine: i < aclLines.length - 1 } })),
+  T({ x: 6.7, y: 1.75, w: 1.3, h: 4.4, fontSize: 15, fontFace: "Courier New", color: C.accent6, paraSpaceAfter: 6 }));
+const notesAcl = [["Host + protocol + port", "Each permit names exactly what one requirement needs"], ["Order matters", "The internal deny must stay above the Internet permits, or HR can reach any internal host on 80/443"], ["24 such pairs", "In Stage 3, 24 rule pairs would change behaviour if swapped"]];
+notesAcl.forEach(([h, d], i) => {
+  const y = 1.45 + i * 1.7;
+  card(s, 8.6, y, 4.1, 1.5);
+  s.addText(h, T({ x: 8.85, y: y + 0.15, w: 3.7, h: 0.45, fontSize: 17, bold: true, color: C.text2 }));
+  s.addText(d, T({ x: 8.85, y: y + 0.62, w: 3.7, h: 0.8, fontSize: 13 }));
+});
+s.addNotes("Simplified names: HR = 192.168.10.0/24. The full ACLs are in Appendix B of the report.");
 
 // ---------- 7. Method ----------
 s = add("Content", "Part B: Design");
@@ -218,6 +299,68 @@ s.addNotes("A test with no screenshot is marked not evidenced and left out of ev
 
 // ---------- 8. Results chart ----------
 pres.addSection({ title: "Part B: Results" });
+
+// ---------- Stage 0 evidence ----------
+s = add("Content", "Part B: Results");
+s.addText("Stage 0: the network works with no rules", { placeholder: "title" });
+img(s, OBS("F04-stage0-sales-ssh-open.png"), 0.6, 1.4, 5.0, 868, 865, { altText: "Stage 0: Sales PC reaches R-CORE by SSH and Telnet" });
+card(s, 6.1, 1.4, 6.6, 2.3);
+s.addText([
+  { text: "Positive control: 17 of 17 reachable", options: { bold: true, fontSize: 20, color: C.accent2, breakLine: true } },
+  { text: "Every test, even the forbidden ones, worked with no ACLs. So any later block is caused by the policy, not by a broken cable or a stopped service." },
+], T({ x: 6.4, y: 1.6, w: 6.0, h: 2.0, fontSize: 15 }));
+card(s, 6.1, 3.95, 6.6, 2.5);
+s.addText([
+  { text: "Faults found and fixed during the build", options: { bold: true, fontSize: 18, breakLine: true } },
+  { text: "R-CORE G0/1 had R-EDGE's address 203.0.113.1, which blocked external traffic", options: { bullet: true, breakLine: true } },
+  { text: "DNS-SRV and EXT-WEB first had wrong IP addresses", options: { bullet: true, breakLine: true } },
+  { text: "Two tests ran from a different PC than planned (T05, T12)", options: { bullet: true } },
+], T({ x: 6.4, y: 4.15, w: 6.0, h: 2.2, fontSize: 14, paraSpaceAfter: 4 }));
+s.addNotes("The screenshot shows a Sales PC logging in to the core router by SSH and Telnet: forbidden later, allowed here because no rules exist yet.");
+
+// ---------- Stage 1 evidence ----------
+s = add("Content", "Part B: Results");
+s.addText("Stage 1 (broad): the inside stays open", { placeholder: "title" });
+img(s, OBS("F06-stage1-excess-ping.png"), 0.6, 1.95, 5.8, 798, 621, { altText: "Stage 1: HR pings WEB-SRV and FIN-PC1" });
+img(s, OBS("F07-stage1-edge-counters.png"), 7.0, 1.95, 4.9, 877, 783, { altText: "Stage 1: R-EDGE access-list counters" });
+pill(s, 0.6, 1.4, "PERMIT", "permit");
+s.addText("HR pings a server (T13) and a Finance PC (T07): both forbidden, both work", T({ x: 1.9, y: 1.4, w: 4.6, h: 0.36, fontSize: 13, bold: true, valign: "middle" }));
+pill(s, 7.0, 1.4, "COUNTERS", "amber");
+s.addText("Edge ACL: return traffic matched 3×, deny matched 8×", T({ x: 8.3, y: 1.4, w: 4.4, h: 0.36, fontSize: 13, bold: true, valign: "middle" }));
+s.addNotes("The broad policy only filters the Internet edge. One edge line (time-exceeded) was rejected by Packet Tracer, so Stage 1 has 10 rules instead of the planned 11.");
+
+// ---------- Stage 2 evidence ----------
+s = add("Content", "Part B: Results");
+s.addText("Stage 2 (department-level): departments separated", { placeholder: "title" });
+img(s, OBS("F09-stage2-dept-denied.png"), 0.6, 1.95, 5.6, 863, 778, { altText: "Stage 2: HR to Finance ping blocked" });
+img(s, OBS("F08-stage2-acl-counters.png"), 6.8, 1.95, 5.6, 860, 780, { altText: "Stage 2: R-CORE ACLs with counters" });
+pill(s, 0.6, 1.4, "DENY", "deny");
+s.addText("HR → Finance PC now blocked (T07)", T({ x: 1.9, y: 1.4, w: 4.4, h: 0.36, fontSize: 13, bold: true, valign: "middle" }));
+pill(s, 6.8, 1.4, "COUNTERS", "amber");
+s.addText("One ACL per department; deny entries count hits", T({ x: 8.1, y: 1.4, w: 4.6, h: 0.36, fontSize: 13, bold: true, valign: "middle" }));
+s.addNotes("Stage 2 blocks department-to-department traffic, but each department can still reach the whole server zone, so 4 of 8 forbidden flows still work.");
+
+// ---------- Results matrix ----------
+s = add("Content", "Part B: Results");
+s.addText("All observed results", { placeholder: "title" });
+const M = [
+  ["T01", "HR → web portal", "Req", "A", "A", "A", "A"], ["T03", "HR → DNS", "Req", "A", "n/e", "A", "n/e"], ["T04", "Finance → FTP", "Req", "P", "n/e", "n/e", "P"],
+  ["T05", "HR → HR records", "Req", "A", "n/e", "n/e", "A"], ["T06", "IT → router SSH", "Req", "A", "n/e", "n/e", "A"], ["T14", "IT → ping server", "Req", "A", "n/e", "A", "n/e"],
+  ["T15", "Internet → portal", "Req", "A", "n/e", "A", "n/e"], ["T17", "HR → Internet web", "Req", "A", "A", "A", "n/e"], ["T07", "HR → Finance PC", "Forb", "A", "A", "D", "D"],
+  ["T08", "Sales → FTP", "Forb", "A", "n/e", "A", "D"], ["T10", "Sales → HR records", "Forb", "A", "n/e", "A", "D"], ["T11", "Sales → router SSH", "Forb", "A", "n/e", "D", "D"],
+  ["T12", "Telnet → router", "Forb", "A", "n/e", "A", "n/e"], ["T13", "HR → ping server", "Forb", "A", "A", "A", "n/e"], ["T16", "Internet → FTP", "Forb", "A", "n/e", "D", "n/e"],
+  ["T19", "Sales → router SSH (2)", "Forb", "A", "n/e", "D", "n/e"], ["T18", "Same-VLAN ping", "Ctrl", "A", "n/e", "A", "n/e"],
+];
+const cellCol = (v, kind) => v === "n/e" ? "F2F4F6" : v === "P" ? "FBEFD9" : (kind === "Forb" && v === "A") || (kind !== "Forb" && v === "D") ? "F6D5D1" : "D8F0E3";
+const head = ["Test", "Flow", "Type", "S0", "S1", "S2", "S3"].map(t => ({ text: t, options: { bold: true, fill: { color: HEX.light } } }));
+const half = (rowsArr) => [head].concat(rowsArr.map(r => r.map((v, j) => j >= 3 && j <= 6 && r[0] ? { text: v, options: { align: "center", fill: { color: j === 3 ? "FFFFFF" : cellCol(v, r[2]) } } } : v)));
+const tOpts = (x) => ({ x, y: 1.4, w: 5.95, colW: [0.65, 2.3, 0.7, 0.575, 0.575, 0.575, 0.575], fontSize: 12, fontFace: "Calibri", color: HEX.dark, border: { type: "solid", pt: 0.5, color: HEX.grid }, rowH: 0.48, valign: "middle", margin: [0.02, 0.06, 0.02, 0.06] });
+s.addTable(half(M.slice(0, 9)), tOpts(0.6));
+s.addTable(half(M.slice(9)), tOpts(6.75));
+s.addText("Green = policy goal met · Red = forbidden flow worked or required flow failed · Amber P = partial (FTP login only) · n/e = no screenshot, excluded from counts · S0 has no rules, so every flow should work",
+  T({ x: 6.75, y: 5.85, w: 5.95, h: 0.9, fontSize: 11, italic: true, color: C.accent4 }));
+s.addNotes("This is Table 7 of the report in colour. Read across a row to see a flow being closed as the policy is refined, for example T07 and T10.");
+
 s = add("Content", "Part B: Results");
 s.addText("Results: access fell as rules grew", { placeholder: "title" });
 s.addChart(pres.charts.BAR, [
@@ -328,6 +471,26 @@ lim.forEach(([h, d], i) => {
 });
 s.addNotes("Be upfront: counts describe only the tests with screenshot evidence.");
 
+
+// ---------- Future work ----------
+s = add("Content", "Part C and conclusion");
+s.addText("Future work", { placeholder: "title" });
+const fut = [
+  ["Fix the FTP gap", "Add one minimal, correctly ordered data-channel rule, or move the finance service to HTTPS/SFTP, and re-test"],
+  ["Run the mistake experiments", "M1 (shadowed rule) and M2 (missing DNS rule) on copies of Stages 2 and 3"],
+  ["Complete the evidence", "Capture every test and ACL counter in every stage; save running configs to measure lines changed"],
+  ["Stateful and identity-aware", "Compare with a stateful firewall and with identity-based microsegmentation (Zero Trust)"],
+];
+fut.forEach(([h, d], i) => {
+  const col = i % 2, row = Math.floor(i / 2);
+  const x = 0.6 + col * 6.15, y = 1.5 + row * 2.55;
+  card(s, x, y, 5.95, 2.3);
+  s.addShape(pres.shapes.OVAL, { x: x + 0.3, y: y + 0.3, w: 0.5, h: 0.5, fill: { color: C.accent3 }, line: { color: C.accent3 }, objectName: "fut" + i });
+  s.addText(h, T({ x: x + 1.0, y: y + 0.3, w: 4.7, h: 0.5, fontSize: 19, bold: true, valign: "middle" }));
+  s.addText(d, T({ x: x + 0.3, y: y + 1.0, w: 5.4, h: 1.15, fontSize: 15, color: C.text2 }));
+});
+s.addNotes("Each item addresses a limitation from the previous slide.");
+
 // ---------- 14. Conclusion ----------
 s = add("Section dark", "Part C and conclusion");
 s.addText("Conclusion", { placeholder: "title" });
@@ -345,6 +508,26 @@ concl.forEach(([h, d, col], i) => {
 s.addText("Write the required flows first, then refine — the trade-off is real, and it can be measured.", T({ x: 0.7, y: 5.55, w: 11.9, h: 0.6, fontSize: 20, italic: true, color: C.accent3, fontFace: "Cambria" }));
 s.addText("Thank you · Questions?", T({ x: 0.7, y: 6.35, w: 11.9, h: 0.5, fontSize: 18, bold: true, color: C.background1 }));
 s.addNotes("Summarise the three findings and invite questions.");
+
+
+// ---------- References ----------
+s = add("Content", "Part C and conclusion");
+s.addText("Key references", { placeholder: "title" });
+const refs = [
+  "[1] A. Wool, \"A quantitative study of firewall configuration errors,\" Computer, 37(6), 2004.",
+  "[2] A. Wool, \"Trends in firewall configuration errors,\" IEEE Internet Computing, 14(4), 2010.",
+  "[3] K. Scarfone, P. Hoffman, \"Guidelines on firewalls and firewall policy,\" NIST SP 800-41r1, 2009.",
+  "[4] S. Rose et al., \"Zero trust architecture,\" NIST SP 800-207, 2020.",
+  "[5] J. H. Saltzer, M. D. Schroeder, \"The protection of information in computer systems,\" Proc. IEEE, 1975.",
+  "[9] E. Al-Shaer, H. Hamed, \"Discovery of policy anomalies in distributed firewalls,\" INFOCOM, 2004.",
+  "[10] E. Al-Shaer et al., \"Conflict classification and analysis of distributed firewall policies,\" IEEE JSAC, 2005.",
+  "[11] L. Yuan et al., \"FIREMAN: A toolkit for firewall modeling and analysis,\" IEEE S&P, 2006.",
+  "[13] A. Voronkov et al., \"Systematic literature review on usability of firewall configuration,\" ACM CSUR, 2017.",
+  "[15] R. Chandramouli, \"Guide to a secure enterprise network landscape,\" NIST SP 800-215, 2022.",
+];
+s.addText(refs.map((r, i) => ({ text: r, options: { breakLine: i < refs.length - 1 } })), T({ x: 0.8, y: 1.5, w: 11.8, h: 4.9, fontSize: 15, paraSpaceAfter: 8, color: C.text2 }));
+s.addText("Full list of 18 references in the report (IEEE style).", T({ x: 0.8, y: 6.5, w: 11.8, h: 0.4, fontSize: 12, italic: true, color: C.accent4 }));
+s.addNotes("Ten of the eighteen sources; the full list is in the report.");
 
 (async () => {
   await pres.writeFile({ fileName: OUT });
