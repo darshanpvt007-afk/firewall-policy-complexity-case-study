@@ -45,3 +45,4 @@ Record team decisions and Packet Tracer pilot findings here, newest entry at the
 | | TEAM DECISION | FTP follow-up (only if P7 outcome is b): minimal entry, or switch R4 to HTTPS | | | |
 | | PILOT RESULT | P8 SSH, VTY 0 15, access-class, alternate addresses | | | |
 | | PILOT RESULT | P9 Telnet / transport input ssh | Not run (out of the draft's pilot scope; run only if needed) | | |
+| 2026-10-24 | TEAM DETAIL | Member names and registration numbers | Ramsrivathsan R 25BCE2111; S Darshan 25BCE2883; M B Adavan 25BCE0063; Naveen V S 25BCE0059; Himaneesh S 25BAI0007 | Team message, 2026-10-24 | Claude (on the team's instruction) |
