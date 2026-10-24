@@ -560,17 +560,15 @@ The main lesson is that the security gain and the management cost are real, and 
 
 # Individual Contribution Statement
 
-All five members worked on one integrated project; nobody owned a separate topic. Each member led one functional area and reviewed another member's work. Shared by everyone: reading the core sources, critical-analysis notes and viva preparation.
+All five members contributed equally to one integrated project; nobody owned a separate topic. Each member led one area, reviewed another member's work, and shared in reading the core sources, writing critical-analysis notes and preparing for the viva. The Packet Tracer build and test runs were carried out with help from ____________________ (not a team member), whose contribution we acknowledge.
 
-The rows list each member's area of responsibility. The Packet Tracer build and test runs were carried out with help from ____________________ (not a team member), whose contribution we acknowledge.
-
-| Member | Reg. No. | Role | Responsibilities | Reviewed / verified | Viva | Sign |
-|----------|---------|------------|--------------------------|----------------|----------|------|
-| Ram |  | Network build | Topology and addressing plan; Stage 0 build in Packet Tracer; applying the Stage 1–3 scripts; saving running configurations; pilot steps P3, P7, P8 | Test matrix expectations against the configurations (with Darshan) | B4–B6 | |
-| Darshan |  | Testing and evidence | Test matrix and pass/fail criteria; running the 17 tests in Stages 0–3; results table; screenshots F01–F19 | Stage scripts against the requirements (with Ram) | B7, B9 | |
-| Aadhavan |  | Literature | Literature search; Part A Sections 1–4 in own words; comparison table (Table 1) | Reference claims for [1], [2], [9]–[13] | Part A | |
-| Naveen |  | Citations and standards | Reference list and reference checks; standards sections ([3]–[7], [15], [16]); Stage 1 terminology check | Citations in Parts A–C; full-text checks | References, Part A §2.1, §2.4 | |
-| Himenesh |  | Integration and QC | Requirements matrix; metric definitions; configuration analysis; misconfiguration experiments M1/M2; Part C; final formatting | Whole report for consistency; numbers against evidence | B1–B3, B8, Part C | |
+| Member | Reg. No. | Main contributions | Share | Sign |
+|----------|---------|------------------------------------|------|------|
+| Ram |  | Network design and Packet Tracer configuration (B4–B6); review of the test plan | 20% | |
+| Darshan |  | Test plan, results and evidence (B7, B9); coordination of the simulation work | 20% | |
+| Aadhavan |  | Literature review and comparison (Part A, Table 1); review of Part C | 20% | |
+| Naveen |  | References, standards sections and citations (Part A §2.1, §2.4); review of Part A | 20% | |
+| Himenesh |  | Requirements, metrics and Part C (B1–B3, B8, Part C); final editing | 20% | |
 
 # Appendix A — Configuration Sources
 
