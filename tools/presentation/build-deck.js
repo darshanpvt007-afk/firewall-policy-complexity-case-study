@@ -77,6 +77,27 @@ function img(slide, file, x, y, w, pw, ph, extra) {
   return h;
 }
 function add(master, section) { return pres.addSlide({ masterName: master, sectionTitle: section }); }
+const React = require("react"), RDS = require("react-dom/server"), sharp = require("sharp"), FA = require("react-icons/fa");
+const ICON = {};
+async function prepIcon(name, color) {
+  const svg = RDS.renderToStaticMarkup(React.createElement(FA[name], { color: "#" + color, size: 256 }));
+  ICON[name + color] = "image/png;base64," + (await sharp(Buffer.from(svg)).resize(256, 256, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer()).toString("base64");
+}
+// icon in a coloured circle (circleHex) or bare (circleHex null)
+function icon(slide, name, x, y, d, circleHex, iconHex) {
+  const ic = iconHex || "FFFFFF";
+  if (circleHex) slide.addShape(pres.shapes.OVAL, { x, y, w: d, h: d, fill: { color: circleHex }, line: { color: circleHex }, objectName: "iconbg" + (++n) });
+  const pad = circleHex ? d * 0.24 : 0;
+  slide.addImage({ data: ICON[name + ic], x: x + pad, y: y + pad, w: d - 2 * pad, h: d - 2 * pad, altText: name, objectName: "icon" + (++n) });
+}
+const ICON_USES = [["FaShieldAlt","FFFFFF"],["FaSortAmountDown","FFFFFF"],["FaExclamationTriangle","FFFFFF"],["FaUserLock","FFFFFF"],["FaTools","FFFFFF"],
+  ["FaNetworkWired","FFFFFF"],["FaClipboardList","FFFFFF"],["FaLayerGroup","FFFFFF"],["FaChartBar","FFFFFF"],["FaBug","FFFFFF"],["FaBalanceScale","FFFFFF"],
+  ["FaWrench","FFFFFF"],["FaCamera","FFFFFF"],["FaFingerprint","FFFFFF"],["FaChartLine","FFFFFF"],["FaUserCog","FFFFFF"],
+  ["FaCompress","FFFFFF"],["FaEyeSlash","FFFFFF"],["FaIdCard","FFFFFF"],["FaDesktop","FFFFFF"],["FaBan","FFFFFF"],["FaExchangeAlt","FFFFFF"],
+  ["FaLockOpen","FFFFFF"],["FaLock","FFFFFF"],["FaChevronRight","98A6B3"],["FaShieldAlt","2E3A46"],["FaProjectDiagram","FFFFFF"],["FaCodeBranch","FFFFFF"],["FaRandom","FFFFFF"]];
+(async () => {
+for (const [nm, c] of ICON_USES) await prepIcon(nm, c);
+
 
 // ---------- 1. Title ----------
 pres.addSection({ title: "Introduction" });
@@ -89,6 +110,7 @@ team.forEach(([nm, reg], i) => {
   s.addText([{ text: nm, options: { bold: true, breakLine: true } }, { text: reg, options: { color: C.accent6, fontSize: 13 } }],
     T({ x, y: 5.4, w: 2.3, h: 0.8, fontSize: 15, color: C.background1 }));
 });
+icon(s, "FaShieldAlt", 11.35, 0.45, 1.4, null, "2E3A46");
 pill(s, 0.7, 6.55, "PERMIT", "permit"); pill(s, 1.98, 6.55, "DENY", "deny");
 s.addText("School of Computer Science and Engineering, VIT Vellore", T({ x: 3.4, y: 6.55, w: 8, h: 0.36, fontSize: 13, color: C.accent6, valign: "middle" }));
 s.addNotes("Introduce the team and the topic: how firewall/ACL policy changes as we move from simple, broad rules to least-privilege rules, and what that costs in complexity.");
@@ -113,13 +135,12 @@ s.addNotes("Walk through the structure: the assignment has a review paper (Part 
 s = add("Content", "Introduction");
 s.addText("The problem we studied", { placeholder: "title" });
 card(s, 0.6, 1.5, 6.0, 4.9);
-s.addText([
-  { text: "Broad rules are easy, but open", options: { bold: true, fontSize: 20, breakLine: true } },
-  { text: "Most small networks let every department reach every server. One router ACL can close those paths.", options: { breakLine: true } },
-  { text: " ", options: { breakLine: true } },
-  { text: "Strict rules are safe, but costly", options: { bold: true, fontSize: 20, breakLine: true } },
-  { text: "Each step towards least privilege adds rules, conditions and dependence on rule order, which the literature links to configuration errors." },
-], T({ x: 0.95, y: 1.8, w: 5.3, h: 4.3, fontSize: 16 }));
+icon(s, "FaLockOpen", 0.95, 1.85, 0.75, HEX.deny);
+s.addText("Broad rules are easy, but open", T({ x: 1.9, y: 1.85, w: 4.5, h: 0.75, fontSize: 20, bold: true, valign: "middle" }));
+s.addText("Most small networks let every department reach every server. One router ACL can close those paths.", T({ x: 0.95, y: 2.75, w: 5.4, h: 1.2, fontSize: 17, color: C.text2 }));
+icon(s, "FaLock", 0.95, 4.1, 0.75, HEX.permit);
+s.addText("Strict rules are safe, but costly", T({ x: 1.9, y: 4.1, w: 4.5, h: 0.75, fontSize: 20, bold: true, valign: "middle" }));
+s.addText("Each step towards least privilege adds rules, conditions and rule-order dependence, which the literature links to errors.", T({ x: 0.95, y: 5.0, w: 5.4, h: 1.25, fontSize: 17, color: C.text2 }));
 s.addText("Research question", T({ x: 7.1, y: 1.6, w: 5.6, h: 0.4, fontSize: 14, bold: true, color: C.accent3 }));
 s.addText("How does refining network access policy from broad, to department-level, to service-level least privilege change (a) the unnecessary flows the policy allows and (b) the policy's size, specificity and dependence on rule order, and how do these results compare with the literature?",
   T({ x: 7.1, y: 2.1, w: 5.6, h: 3.0, fontSize: 19, italic: true, fontFace: "Cambria", color: C.text2 }));
@@ -143,9 +164,9 @@ objs.forEach(([h, d], i) => {
   const col = i % 2, row = Math.floor(i / 2);
   const x = 0.6 + col * 6.15, y = 1.5 + row * 1.7;
   card(s, x, y, 5.95, 1.5);
-  s.addText(String(i + 1), T({ x: x + 0.3, y, w: 0.6, h: 1.5, fontSize: 30, bold: true, color: C.accent3, fontFace: "Cambria", valign: "middle" }));
-  s.addText(h, T({ x: x + 1.0, y: y + 0.2, w: 4.7, h: 0.45, fontSize: 19, bold: true }));
-  s.addText(d, T({ x: x + 1.0, y: y + 0.65, w: 4.7, h: 0.8, fontSize: 14, color: C.text2 }));
+  icon(s, ["FaNetworkWired", "FaClipboardList", "FaLayerGroup", "FaChartBar", "FaBug", "FaBalanceScale"][i], x + 0.25, y + 0.38, 0.72, HEX.amber);
+  s.addText(h, T({ x: x + 1.15, y: y + 0.2, w: 4.6, h: 0.45, fontSize: 19, bold: true }));
+  s.addText(d, T({ x: x + 1.15, y: y + 0.65, w: 4.6, h: 0.8, fontSize: 15, color: C.text2 }));
 });
 s.addNotes("Objective 5 (the misconfiguration experiments) was designed but not run in the time available; we say so on the limitations slide.");
 
@@ -164,10 +185,9 @@ themes.forEach(([h, d, r], i) => {
   const col = i % 3, row = Math.floor(i / 3);
   const x = 0.6 + col * 4.12 + (row === 1 ? 2.06 : 0), y = 1.55 + row * 2.6;
   card(s, x, y, 3.85, 2.3);
-  s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: y + 0.25, w: 0.55, h: 0.55, fill: { color: C.text2 }, line: { color: C.text2 }, objectName: "num" + i });
-  s.addText(String(i + 1), T({ x: x + 0.25, y: y + 0.25, w: 0.55, h: 0.55, fontSize: 16, bold: true, color: C.background1, align: "center", valign: "middle" }));
+  icon(s, ["FaShieldAlt", "FaSortAmountDown", "FaExclamationTriangle", "FaUserLock", "FaTools"][i], x + 0.25, y + 0.22, 0.62, "2E3A46");
   s.addText(h, T({ x: x + 0.95, y: y + 0.27, w: 2.75, h: 0.55, fontSize: 17, bold: true, valign: "middle" }));
-  s.addText(d, T({ x: x + 0.25, y: y + 1.0, w: 3.4, h: 0.85, fontSize: 14, color: C.text2 }));
+  s.addText(d, T({ x: x + 0.25, y: y + 1.0, w: 3.4, h: 0.85, fontSize: 15, color: C.text2 }));
   s.addText(r, T({ x: x + 0.25, y: y + 1.85, w: 3.4, h: 0.3, fontSize: 11, color: C.accent4 }));
 });
 s.addNotes("Five themes from 18 sources (10 peer-reviewed). They agree misconfiguration is common, rule order hides conflicts and location-based trust is weak. They disagree on whether finer policy lowers net risk once complexity is counted.");
@@ -185,7 +205,7 @@ gaps.forEach((g, i) => {
   const y = 1.55 + i * 1.2;
   card(s, 0.6, y, 7.0, 1.0, i === 2 ? "FBEFD9" : undefined);
   s.addText(String(i + 1), T({ x: 0.85, y, w: 0.5, h: 1.0, fontSize: 26, bold: true, color: i === 2 ? C.accent3 : C.accent4, valign: "middle", fontFace: "Cambria" }));
-  s.addText(g, T({ x: 1.45, y, w: 6.0, h: 1.0, fontSize: 16, valign: "middle" }));
+  s.addText(g, T({ x: 1.45, y, w: 6.0, h: 1.0, fontSize: 17, valign: "middle" }));
 });
 card(s, 8.1, 1.55, 4.6, 4.6, HEX.dark);
 s.addText([
@@ -286,7 +306,7 @@ steps.forEach(([k, a, b], i) => {
   s.addText(k, T({ x: x + 0.25, y: 1.8, w: 1, h: 0.7, fontSize: 36, bold: true, color: C.accent3, fontFace: "Cambria" }));
   s.addText(a, T({ x: x + 0.25, y: 2.6, w: 1.85, h: 0.5, fontSize: 17, bold: true }));
   s.addText(b, T({ x: x + 0.25, y: 3.15, w: 1.85, h: 0.9, fontSize: 14, color: C.text2 }));
-  if (i < 4) s.addText("›", T({ x: x + 2.25, y: 2.5, w: 0.25, h: 0.6, fontSize: 28, color: C.accent6, align: "center" }));
+  if (i < 4) icon(s, "FaChevronRight", x + 2.29, 2.75, 0.18, null, "98A6B3");
 });
 card(s, 0.6, 4.6, 12.1, 1.9);
 s.addText([
@@ -428,8 +448,9 @@ obs.forEach(([h, d], i) => {
   const col = i % 2, row = Math.floor(i / 2);
   const x = 0.6 + col * 6.15, y = 1.5 + row * 2.6;
   card(s, x, y, 5.95, 2.35);
-  s.addText(h, T({ x: x + 0.3, y: y + 0.25, w: 5.3, h: 0.5, fontSize: 19, bold: true, color: C.text2 }));
-  s.addText(d, T({ x: x + 0.3, y: y + 0.85, w: 5.35, h: 1.4, fontSize: 15 }));
+  icon(s, ["FaCodeBranch", "FaSortAmountDown", "FaProjectDiagram", "FaWrench"][i], x + 0.3, y + 0.25, 0.6, "2E3A46");
+  s.addText(h, T({ x: x + 1.1, y: y + 0.25, w: 4.6, h: 0.6, fontSize: 19, bold: true, color: C.text2, valign: "middle" }));
+  s.addText(d, T({ x: x + 0.3, y: y + 1.0, w: 5.35, h: 1.3, fontSize: 16 }));
 });
 s.addNotes("The timeout versus refusal shows overlapping enforcement points, which makes policies harder to reason about.");
 
@@ -466,8 +487,9 @@ lim.forEach(([h, d], i) => {
   const col = i % 3, row = Math.floor(i / 3);
   const x = 0.6 + col * 4.12, y = 1.5 + row * 2.6;
   card(s, x, y, 3.85, 2.3);
-  s.addText(h, T({ x: x + 0.3, y: y + 0.3, w: 3.3, h: 0.5, fontSize: 19, bold: true, color: C.text2 }));
-  s.addText(d.replace(/`/g, ""), T({ x: x + 0.3, y: y + 0.9, w: 3.3, h: 1.25, fontSize: 15 }));
+  icon(s, ["FaCompress", "FaEyeSlash", "FaIdCard", "FaDesktop", "FaBan", "FaExchangeAlt"][i], x + 0.3, y + 0.28, 0.58, HEX.deny);
+  s.addText(h, T({ x: x + 1.05, y: y + 0.28, w: 2.6, h: 0.58, fontSize: 19, bold: true, color: C.text2, valign: "middle" }));
+  s.addText(d.replace(/`/g, ""), T({ x: x + 0.3, y: y + 1.0, w: 3.3, h: 1.2, fontSize: 16 }));
 });
 s.addNotes("Be upfront: counts describe only the tests with screenshot evidence.");
 
@@ -485,9 +507,9 @@ fut.forEach(([h, d], i) => {
   const col = i % 2, row = Math.floor(i / 2);
   const x = 0.6 + col * 6.15, y = 1.5 + row * 2.55;
   card(s, x, y, 5.95, 2.3);
-  s.addShape(pres.shapes.OVAL, { x: x + 0.3, y: y + 0.3, w: 0.5, h: 0.5, fill: { color: C.accent3 }, line: { color: C.accent3 }, objectName: "fut" + i });
-  s.addText(h, T({ x: x + 1.0, y: y + 0.3, w: 4.7, h: 0.5, fontSize: 19, bold: true, valign: "middle" }));
-  s.addText(d, T({ x: x + 0.3, y: y + 1.0, w: 5.4, h: 1.15, fontSize: 15, color: C.text2 }));
+  icon(s, ["FaWrench", "FaBug", "FaCamera", "FaFingerprint"][i], x + 0.3, y + 0.27, 0.6, HEX.amber);
+  s.addText(h, T({ x: x + 1.1, y: y + 0.32, w: 4.6, h: 0.5, fontSize: 19, bold: true, valign: "middle" }));
+  s.addText(d, T({ x: x + 0.3, y: y + 1.05, w: 5.4, h: 1.15, fontSize: 16, color: C.text2 }));
 });
 s.addNotes("Each item addresses a limitation from the previous slide.");
 
@@ -501,7 +523,7 @@ const concl = [
 ];
 concl.forEach(([h, d, col], i) => {
   const x = 0.7 + i * 4.1;
-  s.addShape(pres.shapes.OVAL, { x, y: 1.9, w: 0.6, h: 0.6, fill: { color: col }, line: { color: col }, objectName: "cdot" + i });
+  icon(s, ["FaShieldAlt", "FaChartLine", "FaUserCog"][i], x, 1.75, 0.85, col);
   s.addText(h, T({ x, y: 2.75, w: 3.8, h: 0.6, fontSize: 24, bold: true, color: C.background1, fontFace: "Cambria" }));
   s.addText(d, T({ x, y: 3.45, w: 3.7, h: 1.6, fontSize: 16, color: C.background2 }));
 });
@@ -529,7 +551,6 @@ s.addText(refs.map((r, i) => ({ text: r, options: { breakLine: i < refs.length -
 s.addText("Full list of 18 references in the report (IEEE style).", T({ x: 0.8, y: 6.5, w: 11.8, h: 0.4, fontSize: 12, italic: true, color: C.accent4 }));
 s.addNotes("Ten of the eighteen sources; the full list is in the report.");
 
-(async () => {
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);
   console.log("wrote", OUT);
