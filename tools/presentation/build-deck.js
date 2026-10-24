@@ -532,24 +532,32 @@ s.addText("Thank you · Questions?", T({ x: 0.7, y: 6.35, w: 11.9, h: 0.5, fontS
 s.addNotes("Summarise the three findings and invite questions.");
 
 
-// ---------- References ----------
-s = add("Content", "Part C and conclusion");
-s.addText("Key references", { placeholder: "title" });
+// ---------- References (2 slides, with links) ----------
 const refs = [
-  "[1] A. Wool, \"A quantitative study of firewall configuration errors,\" Computer, 37(6), 2004.",
-  "[2] A. Wool, \"Trends in firewall configuration errors,\" IEEE Internet Computing, 14(4), 2010.",
-  "[3] K. Scarfone, P. Hoffman, \"Guidelines on firewalls and firewall policy,\" NIST SP 800-41r1, 2009.",
-  "[4] S. Rose et al., \"Zero trust architecture,\" NIST SP 800-207, 2020.",
-  "[5] J. H. Saltzer, M. D. Schroeder, \"The protection of information in computer systems,\" Proc. IEEE, 1975.",
-  "[9] E. Al-Shaer, H. Hamed, \"Discovery of policy anomalies in distributed firewalls,\" INFOCOM, 2004.",
-  "[10] E. Al-Shaer et al., \"Conflict classification and analysis of distributed firewall policies,\" IEEE JSAC, 2005.",
-  "[11] L. Yuan et al., \"FIREMAN: A toolkit for firewall modeling and analysis,\" IEEE S&P, 2006.",
-  "[13] A. Voronkov et al., \"Systematic literature review on usability of firewall configuration,\" ACM CSUR, 2017.",
-  "[15] R. Chandramouli, \"Guide to a secure enterprise network landscape,\" NIST SP 800-215, 2022.",
+  ["[1] A. Wool, \"A quantitative study of firewall configuration errors,\" Computer, 37(6), 2004.", "https://ieeexplore.ieee.org/document/1306389"],
+  ["[2] A. Wool, \"Trends in firewall configuration errors,\" IEEE Internet Computing, 14(4), 2010 (extended version).", "https://arxiv.org/abs/0911.1240"],
+  ["[3] K. Scarfone, P. Hoffman, \"Guidelines on firewalls and firewall policy,\" NIST SP 800-41 Rev. 1, 2009.", "https://doi.org/10.6028/NIST.SP.800-41r1"],
+  ["[4] S. Rose et al., \"Zero trust architecture,\" NIST SP 800-207, 2020.", "https://doi.org/10.6028/NIST.SP.800-207"],
+  ["[5] J. H. Saltzer, M. D. Schroeder, \"The protection of information in computer systems,\" Proc. IEEE, 1975 (full text).", "https://www.cs.virginia.edu/~evans/cs551/saltzer/"],
+  ["[9] E. Al-Shaer, H. Hamed, \"Discovery of policy anomalies in distributed firewalls,\" IEEE INFOCOM, 2004.", "https://pure.kfupm.edu.sa/en/publications/discovery-of-policy-anomalies-in-distributed-firewalls/"],
+  ["[10] E. Al-Shaer et al., \"Conflict classification and analysis of distributed firewall policies,\" IEEE JSAC, 2005.", "https://doi.org/10.1109/JSAC.2005.854119"],
+  ["[11] L. Yuan et al., \"FIREMAN: A toolkit for firewall modeling and analysis,\" IEEE S&P, 2006.", "https://doi.org/10.1109/SP.2006.16"],
+  ["[13] A. Voronkov et al., \"Systematic literature review on usability of firewall configuration,\" ACM CSUR, 2017.", "https://doi.org/10.1145/3130876"],
+  ["[15] R. Chandramouli, \"Guide to a secure enterprise network landscape,\" NIST SP 800-215, 2022.", "https://doi.org/10.6028/NIST.SP.800-215"],
 ];
-s.addText(refs.map((r, i) => ({ text: r, options: { breakLine: i < refs.length - 1 } })), T({ x: 0.8, y: 1.5, w: 11.8, h: 4.9, fontSize: 15, paraSpaceAfter: 8, color: C.text2 }));
-s.addText("Full list of 18 references in the report (IEEE style).", T({ x: 0.8, y: 6.5, w: 11.8, h: 0.4, fontSize: 12, italic: true, color: C.accent4 }));
-s.addNotes("Ten of the eighteen sources; the full list is in the report.");
+[refs.slice(0, 5), refs.slice(5)].forEach((part, k) => {
+  s = add("Content", "Part C and conclusion");
+  s.addText("Key references (" + (k + 1) + " of 2)", { placeholder: "title" });
+  part.forEach(([cite, url], i) => {
+    const y = 1.45 + i * 1.02;
+    card(s, 0.6, y, 12.1, 0.88);
+    s.addText(cite, T({ x: 0.85, y: y + 0.08, w: 11.6, h: 0.4, fontSize: 15, color: C.text1 }));
+    s.addText([{ text: url, options: { hyperlink: { url: url, tooltip: "Open source" }, color: C.accent5, underline: { style: "sng" } } }],
+      T({ x: 0.85, y: y + 0.48, w: 11.6, h: 0.32, fontSize: 13 }));
+  });
+  if (k === 1) s.addText("Full list of 18 references in the report (IEEE style). Links: DOI where available, otherwise publisher, repository or full-text page.", T({ x: 0.6, y: 6.6, w: 12.1, h: 0.4, fontSize: 12, italic: true, color: C.accent4 }));
+  s.addNotes("Links are clickable in slideshow mode.");
+});
 
   await pres.writeFile({ fileName: OUT });
   await applyTheme(OUT, THEME);
