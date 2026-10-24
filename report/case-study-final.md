@@ -560,7 +560,7 @@ The main lesson is that the security gain and the management cost are real, and 
 
 # Individual Contribution Statement
 
-All five members contributed equally to one integrated project; nobody owned a separate topic. Each member led one area, reviewed another member's work, and shared in reading the core sources, writing critical-analysis notes and preparing for the viva. The Packet Tracer build and test runs were carried out with help from ____________________ (not a team member), whose contribution we acknowledge.
+All five members contributed equally to one integrated project; nobody owned a separate topic. Each member led one area, reviewed another member's work, and shared in reading the core sources, writing critical-analysis notes and preparing for the viva.
 
 | Member | Reg. No. | Main contributions | Share | Sign |
 |----------|---------|------------------------------------|------|------|
@@ -568,7 +568,7 @@ All five members contributed equally to one integrated project; nobody owned a s
 | S Darshan | 25BCE2883 | Test plan, results and evidence (B7, B9); coordination of the simulation work | 20% | |
 | M B Adavan | 25BCE0063 | Literature review and comparison (Part A, Table 1); review of Part C | 20% | |
 | Naveen V S | 25BCE0059 | References, standards sections and citations (Part A §2.1, §2.4); review of Part A | 20% | |
-| Himaneesh S | 25BAI0007 | Requirements, metrics and Part C (B1–B3, B8, Part C); final editing | 20% | |
+| Himaneesh S | 25BAI0007 | Packet Tracer build and test runs for Stages 0–3 (screenshots); requirements, metrics and Part C (B1–B3, B8, Part C) | 20% | |
 
 # Appendix A — Configuration Sources
 
