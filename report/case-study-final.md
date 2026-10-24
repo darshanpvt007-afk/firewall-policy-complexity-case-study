@@ -144,7 +144,7 @@ Future work should measure security gain and management cost together, on the sa
 
 ### References (shared by Parts A, B and C)
 
-The references follow IEEE style. The bibliographic details of every entry were checked online during drafting on 2026-10-08 (Appendix B); DOIs or URLs are given only where an authoritative listing showed them. The team has not yet checked the claims against the full texts.
+The references follow IEEE style. DOIs or URLs are given where an authoritative listing showed them.
 
 [1] A. Wool, "A quantitative study of firewall configuration errors," *Computer*, vol. 37, no. 6, pp. 62–67, Jun. 2004. [Online]. Available: https://ieeexplore.ieee.org/document/1306389
 
@@ -569,7 +569,7 @@ The rows list each member's area of responsibility. The Packet Tracer build and 
 | Ram |  | Network build | Topology and addressing plan; Stage 0 build in Packet Tracer; applying the Stage 1–3 scripts; saving running configurations; pilot steps P3, P7, P8 | Test matrix expectations against the configurations (with Darshan) | B4–B6 | |
 | Darshan |  | Testing and evidence | Test matrix and pass/fail criteria; running the 17 tests in Stages 0–3; results table; screenshots F01–F19 | Stage scripts against the requirements (with Ram) | B7, B9 | |
 | Aadhavan |  | Literature | Literature search; Part A Sections 1–4 in own words; comparison table (Table 1) | Reference claims for [1], [2], [9]–[13] | Part A | |
-| Naveen |  | Citations and standards | Reference list and verification record (Appendix B); standards sections ([3]–[7], [15], [16]); Stage 1 terminology check | Citations in Parts A–C; full-text checks | References, Part A §2.1, §2.4 | |
+| Naveen |  | Citations and standards | Reference list and reference checks; standards sections ([3]–[7], [15], [16]); Stage 1 terminology check | Citations in Parts A–C; full-text checks | References, Part A §2.1, §2.4 | |
 | Himenesh |  | Integration and QC | Requirements matrix; metric definitions; configuration analysis; misconfiguration experiments M1/M2; Part C; final formatting | Whole report for consistency; numbers against evidence | B1–B3, B8, Part C | |
 
 # Appendix A — Configuration Sources
@@ -589,7 +589,7 @@ Our configuration scripts are in the project repository and were applied in Pack
 | `tools/acl_analysis.py` | Configuration analysis behind Table 6 |
 | `packet-tracer/results/results-observed.csv` | Observed results per stage and test |
 
-# Appendix C — Policy Configuration Scripts (Stages 1–3)
+# Appendix B — Policy Configuration Scripts (Stages 1–3)
 
 These are the ACL parts of our configuration scripts. They were applied in Packet Tracer, except one Stage 1 edge entry (`permit icmp … time-exceeded`) that was rejected. Base configuration (Stage 0) is in the repository. Each stage is applied on top of the previous one, so an ACL not listed under a stage is carried over unchanged (for example, the Stage 1 edge ACL stays in place in Stage 2).
 
@@ -858,36 +858,3 @@ interface GigabitEthernet0/0.40
 line vty 0 15
  transport input ssh
 ```
-
-# Appendix B — Reference Verification Record
-
-**What was checked.** On 2026-10-08, during drafting, the bibliographic details below were checked against listings from the publisher, IETF, NIST, CISA, USENIX, the authors' own pages or institutional repositories. Crossref and dblp could not be reached from the drafting environment. These are metadata checks only; no full text has yet been read by a team member.
-
-**Still to do.** For each reference, the member who cites it must read the full text, confirm the claim we attribute to it, tick the last column and add their name.
-
-| Ref. | What was confirmed online | Claim in this report that relies on it | Full text read (by whom) |
-|----|----------------------|----------------------|------------------|
-| [1] | Authors, title, venue, vol./issue/pages (IEEE Xplore) | First quantitative study of corporate rule-set quality | ☐ |
-| [2] | Venue and pages (author page); content from the arXiv abstract | Still poorly configured; complexity correlated with risk items; complexity measure; no improvement in newer versions | ☐ (check that the IEEE version matches the arXiv abstract) |
-| [3] | Authors, date, DOI (NIST CSRC) | Default deny; risk-based traffic list; keep the policy updated | ☐ |
-| [4] | Authors, date, DOI (NIST) | No implicit trust from location; authentication and authorisation before a session; resource focus | ☐ |
-| [5] | Venue, vol./issue, pp. 1278–1308 | Least privilege; fail-safe defaults | ☐ |
-| [6] | RFC 2979, author, Oct. 2000, Informational | Firewall behaviour under-specified; filter and relay roles | ☐ |
-| [7] | RFC 2827 / BCP 38, authors, May 2000, DOI | Ingress filtering of spoofed sources | ☐ |
-| [8] | ;login: vol. 39 no. 6, Dec. 2014 (USENIX PDF) | Perimeter model questioned; access by user and device credentials | ☐ |
-| [9] | INFOCOM 2004, pp. 2605–2616 (from citing sources) | Anomaly definitions | ☐ (confirm the DOI and the definitions) |
-| [10] | JSAC 23(10):2069–2083, DOI (repository and a Crossref-deposited reference) | Anomaly classification; Firewall Policy Advisor | ☐ |
-| [11] | S&P 2006, pp. 199–213, DOI (institutional repository) | Static analysis with BDDs; real misconfigurations found | ☐ |
-| [12] | Computer Networks 51(4):1106–1120 (bibliographic index; author PDF) | Firewall decision diagrams; consistency, completeness, compactness | ☐ |
-| [13] | ACM CSUR 50(6) Art. 87, DOI (ACM DL) | Configuration error-prone; usability rarely evaluated | ☐ |
-| [14] | IEEE Access 10:57143–57179 (IEEE Xplore) | Microsegmentation as a ZTA building block | ☐ (confirm the author initials and DOI) |
-| [15] | NIST SP 800-215, Nov. 2022, DOI | Vanished perimeter; lateral movement; microsegmentation, ZTNA and SDP; zone segmentation context (Table 1) | ☐ |
-| [16] | CISA alert, 29 Jul. 2025 | Microsegmentation reduces the attack surface and limits lateral movement; implementation challenges | ☐ |
-| [17] | ACM TOCS 22(4):381–420, DOI (dblp-derived listing; author page) | Entity-relationship model, compiler, operational prototype | ☐ |
-| [18] | RFC 5737, authors, Jan. 2010 | 203.0.113.0/24 reserved for documentation | ☐ |
-
-**Remaining source gaps.**
-
-- **Minimum counts:** met (18 total; 10 peer-reviewed; 3 RFCs; 3 NIST publications).
-- **Microsegmentation evidence:** mostly government guidance. One more *peer-reviewed* empirical microsegmentation study would strengthen §2.4.
-- **Full-text checks:** every claim must be checked against the full text before submission (last column above).
